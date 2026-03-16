@@ -9,6 +9,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
+from deep_translator import GoogleTranslator
 
 # プロジェクトディレクトリを明示的に指定
 PROJECT_DIR = Path(__file__).parent
@@ -22,6 +23,26 @@ IS_VERCEL = os.environ.get('VERCEL') == '1'
 # 出力ディレクトリ
 OUTPUTS_DIR = PROJECT_DIR / "outputs"
 HISTORY_FILE = OUTPUTS_DIR / "prompt-history.json"
+
+
+def translate_to_english(text):
+    """日本語テキストを英語に翻訳（セリフや演出指示用）"""
+    if not text or not text.strip():
+        return text
+
+    # 英語のみの場合はそのまま返す（簡易判定）
+    if all(ord(char) < 128 or char in ' \n\t.,!?\'"' for char in text):
+        return text
+
+    try:
+        # Google Translateで翻訳
+        translator = GoogleTranslator(source='ja', target='en')
+        translated = translator.translate(text)
+        return translated
+    except Exception as e:
+        # 翻訳失敗時は元のテキストを返す
+        print(f"Translation error: {e}")
+        return text
 
 
 def translate_subject_to_english(subject):
@@ -172,8 +193,10 @@ def generate_prompts(form_data):
     visual_style = form_data.get('visual_style', 'grotesque comedy, Pixar meets body horror')
     camera_angle = form_data.get('camera_angle', 'extreme close-up POV from inside')
 
-    # キャラクター対象を英語に翻訳
+    # 各フィールドを英語に翻訳
     character_subject_en = translate_subject_to_english(character_subject)
+    dialogue_en = translate_to_english(dialogue) if dialogue else ''
+    additional_direction_en = translate_to_english(additional_direction) if additional_direction else ''
 
     # 環境と色、質感を自動推測（英語版を使用）
     environment = get_environment_from_subject(character_subject_en)
@@ -220,8 +243,8 @@ STYLE:
 NO TEXT, NO WORDS, NO LETTERS in the image"""
 
     # 追加の演出指示があれば追加
-    if additional_direction:
-        nano_banana_prompt += f"\n\nADDITIONAL DIRECTION:\n{additional_direction}"
+    if additional_direction_en:
+        nano_banana_prompt += f"\n\nADDITIONAL DIRECTION:\n{additional_direction_en}"
 
     nano_banana_prompt = nano_banana_prompt.strip()
 
@@ -247,13 +270,13 @@ An anthropomorphized {character_subject_en} character - literally a {character_s
 {context_desc}""")
 
     # Action（セリフあり/なし）
-    if dialogue:
+    if dialogue_en:
         # セリフありの場合
-        lip_sync = generate_lip_sync(dialogue)
+        lip_sync = generate_lip_sync(dialogue_en)
         kling_sections.append(f"""Action:
 The {character_subject_en} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
 
-"{dialogue}"
+"{dialogue_en}"
 
 Lip sync animation:
 {lip_sync}
@@ -341,9 +364,9 @@ Ultra close-up framing of the character inside {environment}, surrounded by biol
 {chr(10).join('- ' + effect for effect in effects_desc)}""")
 
     # 追加の演出指示があれば追加
-    if additional_direction:
+    if additional_direction_en:
         kling_sections.append(f"""Additional Direction:
-{additional_direction}""")
+{additional_direction_en}""")
 
     kling_prompt = "\n\n".join(kling_sections)
 
