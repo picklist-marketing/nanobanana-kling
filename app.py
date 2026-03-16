@@ -167,6 +167,7 @@ def generate_prompts(form_data):
     product_category = form_data.get('product_category', '')
     character_subject = form_data.get('character_subject', '')
     dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
     character_emotion = form_data.get('character_emotion', 'panicked and terrified')
     visual_style = form_data.get('visual_style', 'grotesque comedy, Pixar meets body horror')
     camera_angle = form_data.get('camera_angle', 'extreme close-up POV from inside')
@@ -217,6 +218,12 @@ STYLE:
 - Vertical portrait orientation, 9:16 aspect ratio
 
 NO TEXT, NO WORDS, NO LETTERS in the image"""
+
+    # 追加の演出指示があれば追加
+    if additional_direction:
+        nano_banana_prompt += f"\n\nADDITIONAL DIRECTION:\n{additional_direction}"
+
+    nano_banana_prompt = nano_banana_prompt.strip()
 
     # Kling プロンプト（構造化フォーマット）
     kling_sections = []
@@ -333,9 +340,14 @@ Ultra close-up framing of the character inside {environment}, surrounded by biol
     kling_sections.append(f"""Ambiance & Effects:
 {chr(10).join('- ' + effect for effect in effects_desc)}""")
 
+    # 追加の演出指示があれば追加
+    if additional_direction:
+        kling_sections.append(f"""Additional Direction:
+{additional_direction}""")
+
     kling_prompt = "\n\n".join(kling_sections)
 
-    return nano_banana_prompt.strip(), kling_prompt.strip()
+    return nano_banana_prompt, kling_prompt.strip()
 
 
 def load_history():

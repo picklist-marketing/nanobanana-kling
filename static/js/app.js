@@ -83,6 +83,10 @@ function updateSummary(data) {
         html += `<div style="margin-bottom: 12px;"><strong>セリフ:</strong> "${data.dialogue}"</div>`;
     }
 
+    if (data.additional_direction && data.additional_direction.trim()) {
+        html += `<div style="margin-bottom: 12px;"><strong>補足演出:</strong> ${data.additional_direction}</div>`;
+    }
+
     html += `
         <div style="margin-bottom: 12px;"><strong>感情:</strong> ${getEmotionLabel(data.character_emotion)}</div>
         <div><strong>スタイル:</strong> ${getStyleLabel(data.visual_style)}</div>
@@ -281,6 +285,7 @@ function loadFromHistory(item) {
     document.getElementById('product_category').value = item.product_category || '';
     document.getElementById('character_subject').value = item.character_subject || '';
     document.getElementById('dialogue').value = item.dialogue || '';
+    document.getElementById('additional_direction').value = item.additional_direction || '';
     document.getElementById('character_emotion').value = item.character_emotion || 'panicked and terrified';
     document.getElementById('visual_style').value = item.visual_style || 'grotesque comedy, Pixar meets body horror';
     document.getElementById('camera_angle').value = item.camera_angle || 'extreme close-up POV from inside';
