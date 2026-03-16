@@ -13,15 +13,6 @@ function setupEventListeners() {
     // フォーム送信
     document.getElementById('prompt-form').addEventListener('submit', handleFormSubmit);
 
-    // コピーボタン
-    document.getElementById('btn-copy-nano').onclick = () => copyPrompt('nano');
-    document.getElementById('btn-copy-kling').onclick = () => copyPrompt('kling');
-    document.getElementById('btn-copy-both').onclick = () => copyPrompt('both');
-
-    // コピー&開くボタン
-    document.getElementById('btn-open-nano').onclick = copyAndOpenNanoBanana;
-    document.getElementById('btn-open-kling').onclick = copyAndOpenKling;
-
     // 保存ボタン
     document.getElementById('btn-save').onclick = saveToHistory;
 
@@ -150,7 +141,7 @@ function getStyleLabel(value) {
 
 // ボタンを有効化
 function enableButtons() {
-    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-copy-both, #btn-open-nano, #btn-open-kling, #btn-save').forEach(btn => {
+    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-open-nano, #btn-open-kling, #btn-save').forEach(btn => {
         btn.disabled = false;
     });
 }

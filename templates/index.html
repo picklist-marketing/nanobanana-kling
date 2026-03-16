@@ -139,21 +139,6 @@
                 <div class="result-header">
                     <h2 id="result-title">生成結果</h2>
                     <div class="quick-actions">
-                        <button id="btn-copy-nano" class="btn btn-primary" disabled>
-                            📸 Nano Bananaをコピー
-                        </button>
-                        <button id="btn-open-nano" class="btn btn-success" disabled>
-                            📸 → Nano Bananaで開く
-                        </button>
-                        <button id="btn-copy-kling" class="btn btn-primary" disabled>
-                            🎬 Klingをコピー
-                        </button>
-                        <button id="btn-open-kling" class="btn btn-success" disabled>
-                            🎬 → Klingで開く
-                        </button>
-                        <button id="btn-copy-both" class="btn btn-success" disabled>
-                            📋 両方コピー
-                        </button>
                         <button id="btn-save" class="btn btn-secondary" disabled>
                             💾 履歴に保存
                         </button>
@@ -164,7 +149,14 @@
                 <div class="prompt-section">
                     <div class="prompt-header">
                         <h3>📸 Nano Banana（画像生成）</h3>
-                        <button class="btn-small" onclick="copyPrompt('nano')">コピー</button>
+                        <div class="prompt-actions">
+                            <button id="btn-copy-nano" class="btn btn-primary" onclick="copyPrompt('nano')" disabled>
+                                📋 コピー
+                            </button>
+                            <button id="btn-open-nano" class="btn btn-success" onclick="copyAndOpenNanoBanana()" disabled>
+                                🚀 Geminiで開く
+                            </button>
+                        </div>
                     </div>
                     <textarea
                         id="prompt-nano"
@@ -178,7 +170,14 @@
                 <div class="prompt-section">
                     <div class="prompt-header">
                         <h3>🎬 Kling（動画化）- 構造化フォーマット</h3>
-                        <button class="btn-small" onclick="copyPrompt('kling')">コピー</button>
+                        <div class="prompt-actions">
+                            <button id="btn-copy-kling" class="btn btn-primary" onclick="copyPrompt('kling')" disabled>
+                                📋 コピー
+                            </button>
+                            <button id="btn-open-kling" class="btn btn-success" onclick="copyAndOpenKling()" disabled>
+                                🚀 Higgsfieldで開く
+                            </button>
+                        </div>
                     </div>
                     <textarea
                         id="prompt-kling"

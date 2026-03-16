@@ -167,13 +167,18 @@ header h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .prompt-header h3 {
     font-size: 1.25rem;
     color: #2c3e50;
     font-weight: 700;
+}
+
+.prompt-actions {
+    display: flex;
+    gap: 8px;
 }
 
 .prompt-textarea {
