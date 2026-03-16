@@ -24,6 +24,42 @@ OUTPUTS_DIR = PROJECT_DIR / "outputs"
 HISTORY_FILE = OUTPUTS_DIR / "prompt-history.json"
 
 
+def translate_subject_to_english(subject):
+    """日本語のキャラクター対象を英語に翻訳"""
+    translations = {
+        '歯垢': 'dental plaque',
+        '歯': 'tooth',
+        '舌': 'tongue',
+        '口': 'mouth',
+        '口腔': 'oral cavity',
+        '毛根': 'hair follicle',
+        '頭皮': 'scalp',
+        '髪': 'hair',
+        '角栓': 'keratin plug',
+        '毛穴': 'skin pore',
+        '毛穴の角栓': 'pore keratin plug',
+        '皮脂': 'sebum',
+        '油': 'oil',
+        '汗': 'sweat',
+        '肌': 'skin',
+        '細菌': 'bacteria',
+        '腸': 'intestine',
+        '胃': 'stomach',
+        '血管': 'blood vessel',
+    }
+
+    # 完全一致を探す
+    if subject in translations:
+        return translations[subject]
+
+    # 部分一致を探す（長い方から優先）
+    for jp, en in sorted(translations.items(), key=lambda x: len(x[0]), reverse=True):
+        if jp in subject:
+            subject = subject.replace(jp, en)
+
+    return subject
+
+
 def get_environment_from_subject(subject):
     """キャラクター対象から環境を推測"""
     if any(word in subject for word in ['歯垢', '歯', '舌', '口']):
@@ -99,30 +135,51 @@ def generate_prompts(form_data):
     visual_style = form_data.get('visual_style', 'grotesque comedy, Pixar meets body horror')
     camera_angle = form_data.get('camera_angle', 'extreme close-up POV from inside')
 
-    # 環境と色、質感を自動推測
-    environment = get_environment_from_subject(character_subject)
-    character_color = get_character_color(character_subject)
-    character_texture = get_character_texture(character_subject)
+    # キャラクター対象を英語に翻訳
+    character_subject_en = translate_subject_to_english(character_subject)
+
+    # 環境と色、質感を自動推測（英語版を使用）
+    environment = get_environment_from_subject(character_subject_en)
+    character_color = get_character_color(character_subject_en)
+    character_texture = get_character_texture(character_subject_en)
 
     # Nano Banana プロンプト（シンプル版）
-    nano_banana_prompt = f"""A tiny {character_color} cartoon character representing {character_subject},
-with HUGE bulging eyes and exaggerated {character_emotion} expression,
-wide open mouth showing teeth,
-{character_texture},
-small stubby arms and legs waving expressively,
-cute yet grotesque appearance,
-trapped inside {environment},
-surrounded by realistic biological details,
-POV from {camera_angle} perspective,
-3D rendered in {visual_style} style,
-IMPORTANT: Character must have CLEAR FACIAL FEATURES - large expressive eyes, defined mouth, anime-style character design,
-NOT photorealistic biological blob, but a CHARACTER with personality,
-Character's body texture and appearance should match the actual look of {character_subject},
-hyperrealistic environment contrasting with stylized cartoon character,
-dramatic lighting with biological wetness and organic textures,
-highly detailed, octane render, 8k,
-Pixar animation quality character in medical illustration environment,
-vertical portrait orientation, 9:16 aspect ratio,
+    nano_banana_prompt = f"""An anthropomorphized {character_subject_en} cartoon character - literally a {character_subject_en} transformed into a cute character with a face.
+
+CHARACTER DETAILS:
+- The character IS a {character_subject_en} with cartoon features added
+- Body shape and structure based on actual {character_subject_en} anatomy
+- {character_texture}
+- {character_color} coloring matching real {character_subject_en}
+- Tiny {character_subject_en} body with adorable cartoon modifications
+
+FACIAL FEATURES (CRITICAL):
+- HUGE bulging expressive eyes (anime-style, NOT realistic)
+- Wide open mouth showing teeth
+- Clear defined facial features with personality
+- Exaggerated {character_emotion} expression
+- NOT a photorealistic blob - this is a CHARACTER with emotions
+
+BODY:
+- Small stubby arms and legs added to the {character_subject_en} body
+- Arms waving expressively
+- Cute yet grotesque appearance
+- Maintains recognizable {character_subject_en} characteristics
+
+ENVIRONMENT:
+- Trapped inside {environment}
+- Surrounded by hyperrealistic biological details
+- POV from {camera_angle} perspective
+- Environment contrasts with stylized cartoon character
+
+STYLE:
+- 3D rendered in {visual_style} style
+- Pixar animation quality character design
+- Medical illustration environment
+- Dramatic lighting with biological wetness and organic textures
+- Highly detailed, octane render, 8k
+- Vertical portrait orientation, 9:16 aspect ratio
+
 NO TEXT, NO WORDS, NO LETTERS in the image"""
 
     # Kling プロンプト（構造化フォーマット）
@@ -130,7 +187,7 @@ NO TEXT, NO WORDS, NO LETTERS in the image"""
 
     # Subject
     kling_sections.append(f"""Subject:
-A grotesque but cartoonish {character_subject} creature with huge bulging eyes and tiny arms standing inside {environment}. The character has {character_texture}, designed to look like an actual {character_subject} but with anime-style facial features.""")
+An anthropomorphized {character_subject_en} character - literally a {character_subject_en} transformed into a cartoon creature with a face and personality. The character IS a {character_subject_en} with huge bulging eyes, tiny arms and legs added. Body structure and appearance match an actual {character_subject_en}: {character_texture}, {character_color} coloring. This is NOT a generic blob but specifically recognizable as a {character_subject_en}. Standing inside {environment}.""")
 
     # Context
     context_desc = ""
@@ -151,7 +208,7 @@ A grotesque but cartoonish {character_subject} creature with huge bulging eyes a
         # セリフありの場合
         lip_sync = generate_lip_sync(dialogue)
         kling_sections.append(f"""Action:
-The {character_subject} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
 
 "{dialogue}"
 
@@ -168,7 +225,7 @@ Comedic animation:
     else:
         # セリフなしの場合
         kling_sections.append(f"""Action:
-The {character_subject} character shows {character_emotion} emotion through exaggerated body language.
+The {character_subject_en} character shows {character_emotion} emotion through exaggerated body language.
 
 Animation:
 - HUGE EYES widening dramatically
@@ -328,7 +385,7 @@ if __name__ == '__main__':
     OUTPUTS_DIR.mkdir(exist_ok=True)
 
     print("\n" + "="*70)
-    print("🎨 Nano Banana × Kling プロンプト生成UI v4.1")
+    print("🎨 Nano Banana × Kling プロンプト生成UI v4.2")
     print("="*70)
     print(f"\n✅ サーバー起動: http://localhost:5051")
     print(f"✅ LAN接続: http://0.0.0.0:5051")
