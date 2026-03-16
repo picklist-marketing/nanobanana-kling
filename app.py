@@ -26,6 +26,24 @@ HISTORY_FILE = OUTPUTS_DIR / "prompt-history.json"
 
 def translate_subject_to_english(subject):
     """日本語のキャラクター対象を英語に翻訳"""
+    # 複合語の完全一致（優先）
+    full_translations = {
+        '顔の角栓': 'facial keratin plug',
+        '鼻の角栓': 'nose keratin plug',
+        '毛穴の角栓': 'pore keratin plug',
+        '頬の角栓': 'cheek keratin plug',
+        '小鼻の角栓': 'nostril keratin plug',
+        '頭皮の皮脂': 'scalp sebum',
+        '顔の皮脂': 'facial sebum',
+        '口の中': 'inside mouth',
+        '口の中の細菌': 'oral bacteria',
+    }
+
+    # 完全一致を最優先で探す
+    if subject in full_translations:
+        return full_translations[subject]
+
+    # 基本的な単語翻訳
     translations = {
         '歯垢': 'dental plaque',
         '歯': 'tooth',
@@ -37,11 +55,14 @@ def translate_subject_to_english(subject):
         '髪': 'hair',
         '角栓': 'keratin plug',
         '毛穴': 'skin pore',
-        '毛穴の角栓': 'pore keratin plug',
         '皮脂': 'sebum',
         '油': 'oil',
         '汗': 'sweat',
         '肌': 'skin',
+        '顔': 'face',
+        '鼻': 'nose',
+        '頬': 'cheek',
+        '小鼻': 'nostril',
         '細菌': 'bacteria',
         '腸': 'intestine',
         '胃': 'stomach',
@@ -52,12 +73,27 @@ def translate_subject_to_english(subject):
     if subject in translations:
         return translations[subject]
 
-    # 部分一致を探す（長い方から優先）
-    for jp, en in sorted(translations.items(), key=lambda x: len(x[0]), reverse=True):
-        if jp in subject:
-            subject = subject.replace(jp, en)
+    # 「AのB」パターンを処理
+    if 'の' in subject:
+        parts = subject.split('の')
+        translated_parts = []
+        for part in parts:
+            if part in translations:
+                translated_parts.append(translations[part])
+            elif part:  # 空でない場合はそのまま残す
+                translated_parts.append(part)
 
-    return subject
+        # 英語の順序に変換（「顔の角栓」→「face keratin plug」）
+        if len(translated_parts) >= 2:
+            return ' '.join(translated_parts)
+
+    # 部分一致を探す（長い方から優先）
+    result = subject
+    for jp, en in sorted(translations.items(), key=lambda x: len(x[0]), reverse=True):
+        if jp in result:
+            result = result.replace(jp, en)
+
+    return result
 
 
 def get_environment_from_subject(subject):
