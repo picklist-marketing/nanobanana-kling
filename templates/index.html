@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 Nano Banana × Kling プロンプト生成</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header>
+            <h1>🎨 Nano Banana × Kling プロンプト生成UI</h1>
+            <p class="subtitle">Kling公式フォーマット対応</p>
+        </header>
+
+        <div class="main-content">
+            <!-- 左パネル: 入力フォーム -->
+            <aside class="form-panel">
+                <h2>📝 入力フォーム</h2>
+
+                <form id="prompt-form">
+                    <!-- 基本情報 -->
+                    <div class="form-section">
+                        <h3>🛍️ 基本情報</h3>
+
+                        <div class="form-group">
+                            <label for="product_category">商材カテゴリ *</label>
+                            <input type="text" id="product_category" name="product_category"
+                                   placeholder="例: 歯磨き粉、育毛剤、化粧水" required>
+                            <small>どんな商品か</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="character_subject">何をキャラにするか *</label>
+                            <input type="text" id="character_subject" name="character_subject"
+                                   placeholder="例: 歯垢、毛根、角栓、舌" required>
+                            <small>キャラクターの対象物（日本語OK）</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dialogue">セリフ（任意・英語）</label>
+                            <input type="text" id="dialogue" name="dialogue"
+                                   placeholder='例: Everyone already knows your bad breath!!'>
+                            <small>キャラクターが喋るセリフ（空欄可）</small>
+                        </div>
+                    </div>
+
+                    <!-- キャラクター設定 -->
+                    <div class="form-section">
+                        <h3>🎭 キャラクター設定</h3>
+
+                        <div class="form-group">
+                            <label for="character_emotion">感情・テンション</label>
+                            <select id="character_emotion" name="character_emotion">
+                                <optgroup label="😱 ネガティブ（高テンション）">
+                                    <option value="panicked and terrified">パニック・恐怖</option>
+                                    <option value="desperate and pleading">必死・懇願</option>
+                                    <option value="angrily shouting">怒って叫ぶ</option>
+                                    <option value="screaming in horror">絶叫・ホラー</option>
+                                    <option value="crying and sobbing loudly">大泣き・号泣</option>
+                                    <option value="shocked and stunned">ショック・呆然</option>
+                                </optgroup>
+                                <optgroup label="😰 ネガティブ（低テンション）">
+                                    <option value="suffering in pain">苦しみ・痛み</option>
+                                    <option value="exhausted and tired">疲労・ダルい</option>
+                                    <option value="depressed and gloomy">落ち込み・憂鬱</option>
+                                    <option value="disgusted and repulsed">嫌悪・うんざり</option>
+                                    <option value="scared and trembling">怯え・震え</option>
+                                    <option value="sleepy and drowsy">眠い・うとうと</option>
+                                </optgroup>
+                                <optgroup label="😊 ポジティブ（高テンション）">
+                                    <option value="excited and hyper">興奮・ハイテンション</option>
+                                    <option value="laughing hysterically">大笑い・爆笑</option>
+                                    <option value="amazed and impressed">驚き・感動</option>
+                                    <option value="happy and grateful">喜び・感謝</option>
+                                    <option value="cheerful and energetic">元気・明るい</option>
+                                </optgroup>
+                                <optgroup label="😌 ポジティブ（低テンション）">
+                                    <option value="relieved and comfortable">安堵・快適</option>
+                                    <option value="satisfied and content">満足・満たされた</option>
+                                    <option value="peaceful and calm">穏やか・落ち着き</option>
+                                    <option value="smug and confident">得意げ・自信満々</option>
+                                </optgroup>
+                                <optgroup label="🤔 その他">
+                                    <option value="confused and puzzled">困惑・戸惑い</option>
+                                    <option value="angry and frustrated">怒り・イライラ</option>
+                                    <option value="curious and intrigued">興味津々・好奇心</option>
+                                    <option value="mischievous and playful">いたずら・遊び心</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- ビジュアルスタイル -->
+                    <div class="form-section">
+                        <h3>🎨 ビジュアルスタイル</h3>
+
+                        <div class="form-group">
+                            <label for="visual_style">スタイル</label>
+                            <select id="visual_style" name="visual_style">
+                                <option value="grotesque comedy, Pixar meets body horror">グロテスクコメディ（推奨）</option>
+                                <option value="cute and friendly Pixar animation">可愛いPixar風</option>
+                                <option value="medical educational illustration">医学教育風</option>
+                                <option value="dark horror aesthetic">ホラー風</option>
+                                <option value="vibrant cartoon style">明るいカートゥーン</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="camera_angle">カメラアングル</label>
+                            <select id="camera_angle" name="camera_angle">
+                                <option value="extreme close-up POV from inside">超クローズアップ（内部視点）</option>
+                                <option value="POV from surface level looking up">表面から見上げる視点</option>
+                                <option value="cross-section view showing depth">断面図視点</option>
+                                <option value="macro photography perspective">マクロ撮影風</option>
+                                <option value="dramatic low angle">迫力のローアングル</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 生成ボタン -->
+                    <button type="submit" class="btn btn-generate">
+                        ✨ プロンプト生成
+                    </button>
+                </form>
+            </aside>
+
+            <!-- 中央パネル: プロンプト結果 -->
+            <main class="result-panel">
+                <div class="result-header">
+                    <h2 id="result-title">生成結果</h2>
+                    <div class="quick-actions">
+                        <button id="btn-copy-nano" class="btn btn-primary" disabled>
+                            📸 Nano Bananaをコピー
+                        </button>
+                        <button id="btn-copy-kling" class="btn btn-primary" disabled>
+                            🎬 Klingをコピー
+                        </button>
+                        <button id="btn-copy-both" class="btn btn-success" disabled>
+                            📋 両方コピー
+                        </button>
+                        <button id="btn-save" class="btn btn-secondary" disabled>
+                            💾 履歴に保存
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Nano Banana プロンプト -->
+                <div class="prompt-section">
+                    <div class="prompt-header">
+                        <h3>📸 Nano Banana（画像生成）</h3>
+                        <button class="btn-small" onclick="copyPrompt('nano')">コピー</button>
+                    </div>
+                    <textarea
+                        id="prompt-nano"
+                        class="prompt-textarea"
+                        placeholder="フォームに入力して「プロンプト生成」ボタンを押してください..."
+                        rows="12"
+                    ></textarea>
+                </div>
+
+                <!-- Kling プロンプト -->
+                <div class="prompt-section">
+                    <div class="prompt-header">
+                        <h3>🎬 Kling（動画化）- 構造化フォーマット</h3>
+                        <button class="btn-small" onclick="copyPrompt('kling')">コピー</button>
+                    </div>
+                    <textarea
+                        id="prompt-kling"
+                        class="prompt-textarea"
+                        placeholder="Klingの構造化プロンプトがここに表示されます..."
+                        rows="20"
+                    ></textarea>
+                </div>
+
+                <!-- 生成した設定の概要 -->
+                <div class="prompt-section">
+                    <div class="prompt-header">
+                        <h3>📋 入力内容サマリー</h3>
+                    </div>
+                    <div id="summary" class="summary-box">
+                        まだ生成されていません
+                    </div>
+                </div>
+            </main>
+
+            <!-- 右パネル: 履歴 -->
+            <aside class="history-panel">
+                <div class="history-header">
+                    <h2>📊 履歴</h2>
+                    <button id="btn-refresh-history" class="btn-small">🔄</button>
+                </div>
+                <div id="history-list" class="history-list"></div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
