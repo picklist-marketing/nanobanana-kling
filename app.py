@@ -10,13 +10,16 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-app = Flask(__name__)
+# プロジェクトディレクトリを明示的に指定
+PROJECT_DIR = Path(__file__).parent
+app = Flask(__name__,
+            static_folder=str(PROJECT_DIR / 'static'),
+            template_folder=str(PROJECT_DIR / 'templates'))
 
 # Vercel環境かどうかを判定
 IS_VERCEL = os.environ.get('VERCEL') == '1'
 
-# プロジェクトディレクトリ
-PROJECT_DIR = Path(__file__).parent
+# 出力ディレクトリ
 OUTPUTS_DIR = PROJECT_DIR / "outputs"
 HISTORY_FILE = OUTPUTS_DIR / "prompt-history.json"
 

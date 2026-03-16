@@ -31,3 +31,4 @@ references/
 # Environment
 .env
 .env.local
+.vercel
