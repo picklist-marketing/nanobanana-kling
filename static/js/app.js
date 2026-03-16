@@ -13,9 +13,6 @@ function setupEventListeners() {
     // フォーム送信
     document.getElementById('prompt-form').addEventListener('submit', handleFormSubmit);
 
-    // 保存ボタン
-    document.getElementById('btn-save').onclick = saveToHistory;
-
     // 履歴更新ボタン
     document.getElementById('btn-refresh-history').onclick = loadHistory;
 }
@@ -59,6 +56,9 @@ async function handleFormSubmit(e) {
 
         // ボタンを有効化
         enableButtons();
+
+        // 自動保存
+        await saveToHistory();
 
         showToast('✅ プロンプトを生成しました！');
     } catch (error) {
@@ -141,7 +141,7 @@ function getStyleLabel(value) {
 
 // ボタンを有効化
 function enableButtons() {
-    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-open-nano, #btn-open-kling, #btn-save').forEach(btn => {
+    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-open-nano, #btn-open-kling').forEach(btn => {
         btn.disabled = false;
     });
 }
@@ -204,10 +204,9 @@ async function copyAndOpenKling() {
     }
 }
 
-// 履歴に保存
+// 履歴に保存（自動保存）
 async function saveToHistory() {
     if (!currentFormData || !currentPrompts) {
-        showToast('生成されたプロンプトがありません', 'error');
         return;
     }
 
@@ -232,10 +231,10 @@ async function saveToHistory() {
 
         localStorage.setItem('prompt-history', JSON.stringify(history));
 
-        showToast('💾 履歴に保存しました！');
+        // 履歴を更新（トースト通知なし）
         loadHistory();
     } catch (error) {
-        showToast('保存に失敗しました', 'error');
+        console.error('Failed to save history:', error);
     }
 }
 
