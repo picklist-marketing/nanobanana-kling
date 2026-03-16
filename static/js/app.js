@@ -18,6 +18,10 @@ function setupEventListeners() {
     document.getElementById('btn-copy-kling').onclick = () => copyPrompt('kling');
     document.getElementById('btn-copy-both').onclick = () => copyPrompt('both');
 
+    // コピー&開くボタン
+    document.getElementById('btn-open-nano').onclick = copyAndOpenNanoBanana;
+    document.getElementById('btn-open-kling').onclick = copyAndOpenKling;
+
     // 保存ボタン
     document.getElementById('btn-save').onclick = saveToHistory;
 
@@ -146,7 +150,7 @@ function getStyleLabel(value) {
 
 // ボタンを有効化
 function enableButtons() {
-    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-copy-both, #btn-save').forEach(btn => {
+    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-copy-both, #btn-open-nano, #btn-open-kling, #btn-save').forEach(btn => {
         btn.disabled = false;
     });
 }
@@ -168,6 +172,42 @@ async function copyPrompt(type) {
     try {
         await navigator.clipboard.writeText(text);
         showToast('📋 クリップボードにコピーしました！');
+    } catch (error) {
+        showToast('コピーに失敗しました', 'error');
+    }
+}
+
+// Nano Bananaにコピー&開く
+async function copyAndOpenNanoBanana() {
+    const text = document.getElementById('prompt-nano').value;
+    if (!text) {
+        showToast('プロンプトを生成してください', 'error');
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('📋 Nano Banana用プロンプトをコピーしました！Geminiを開きます...');
+        // Gemini (Nano Banana)のサイトを開く
+        window.open('https://gemini.google.com/app', '_blank');
+    } catch (error) {
+        showToast('コピーに失敗しました', 'error');
+    }
+}
+
+// Klingにコピー&開く
+async function copyAndOpenKling() {
+    const text = document.getElementById('prompt-kling').value;
+    if (!text) {
+        showToast('プロンプトを生成してください', 'error');
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('📋 Kling用プロンプトをコピーしました！Higgsfieldを開きます...');
+        // Higgsfield (Kling)のサイトを開く
+        window.open('https://higgsfield.ai/create/video', '_blank');
     } catch (error) {
         showToast('コピーに失敗しました', 'error');
     }
