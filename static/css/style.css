@@ -165,17 +165,16 @@ header h1 {
 
 .prompt-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     margin-bottom: 12px;
-    gap: 16px;
+    gap: 12px;
 }
 
 .prompt-header h3 {
     font-size: 1.25rem;
     color: #2c3e50;
     font-weight: 700;
-    flex-shrink: 0;
 }
 
 .prompt-actions {
@@ -434,19 +433,6 @@ header h1 {
     .history-panel {
         position: static;
         max-height: none;
-    }
-
-    .prompt-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .prompt-actions {
-        width: 100%;
-    }
-
-    .prompt-actions .btn {
-        flex: 1;
     }
 }
 
