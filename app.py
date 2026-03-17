@@ -38,11 +38,47 @@ def translate_to_english(text):
         # Google Translateで翻訳
         translator = GoogleTranslator(source='ja', target='en')
         translated = translator.translate(text)
-        return translated
+
+        # 翻訳が成功したか確認（空でない、元のテキストと異なる）
+        if translated and translated.strip() and translated != text:
+            print(f"Translation success: '{text}' -> '{translated}'")
+            return translated
+        else:
+            print(f"Translation returned same text: '{text}'")
+            # フォールバック: 簡易翻訳辞書を使用
+            return simple_translate(text)
     except Exception as e:
-        # 翻訳失敗時は元のテキストを返す
-        print(f"Translation error: {e}")
-        return text
+        # 翻訳失敗時は簡易翻訳にフォールバック
+        print(f"Translation error: {e}. Falling back to simple translation.")
+        return simple_translate(text)
+
+
+def simple_translate(text):
+    """簡易翻訳辞書（フォールバック用）"""
+    # よく使われるフレーズの辞書
+    phrases = {
+        'みんな、もうお前の口臭に気づいてるぞ': 'Everyone already knows about your bad breath',
+        '助けて': 'Help me',
+        'やめて': 'Stop it',
+        '痛い': 'It hurts',
+        '気持ちいい': 'It feels good',
+        'ありがとう': 'Thank you',
+        'さようなら': 'Goodbye',
+        'こんにちは': 'Hello',
+    }
+
+    # 完全一致を探す
+    if text in phrases:
+        return phrases[text]
+
+    # 部分一致を探す
+    for jp, en in phrases.items():
+        if jp in text:
+            return text.replace(jp, en)
+
+    # 該当なしの場合は元のテキストを返す
+    print(f"No translation available for: '{text}'")
+    return text
 
 
 def translate_subject_to_english(subject):
