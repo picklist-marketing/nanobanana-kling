@@ -217,22 +217,60 @@ def get_character_texture(subject):
 
 
 def generate_lip_sync(dialogue):
-    """セリフからリップシンク指示を生成"""
-    words = dialogue.upper().split()
-    lip_sync = []
+    """セリフからリップシンク指示を生成（日本語対応）"""
+    if not dialogue or not dialogue.strip():
+        return ""
 
-    for i, word in enumerate(words):
-        if i == 0:
-            lip_sync.append(f'"{word}" – mouth opens very wide, jaw drops dramatically')
-        elif i == len(words) - 1:
-            if word.endswith('!!') or word.endswith('!'):
-                lip_sync.append(f'"{word}" – character screams loudly with mouth stretched extremely wide')
-            else:
-                lip_sync.append(f'"{word}" – mouth closes slightly, emphasizing final word')
+    # 日本語が含まれているかチェック
+    has_japanese = any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9faf' for c in dialogue)
+
+    if has_japanese:
+        # 日本語の場合：より自然なリップシンク指示
+        dialogue_clean = dialogue.strip()
+
+        # 感情表現を判定
+        is_exclamation = dialogue_clean.endswith('！') or dialogue_clean.endswith('!') or '！！' in dialogue_clean
+        is_question = dialogue_clean.endswith('？') or dialogue_clean.endswith('?')
+
+        lip_sync_parts = []
+
+        if is_exclamation:
+            # 叫び・強調の場合
+            lip_sync_parts.append(f'日本語セリフ: "{dialogue_clean}"')
+            lip_sync_parts.append('口を大きく開けて感情的に叫ぶ')
+            lip_sync_parts.append('表情は強い感情（怒り・恐怖・驚き）を表現')
+            lip_sync_parts.append('口の動きは大きく、ダイナミックに')
+            lip_sync_parts.append('最後の音で口を最大限に開く')
+        elif is_question:
+            # 質問の場合
+            lip_sync_parts.append(f'日本語セリフ: "{dialogue_clean}"')
+            lip_sync_parts.append('口の動きは自然で、語尾で少し上がる')
+            lip_sync_parts.append('表情は疑問や困惑を示す')
         else:
-            lip_sync.append(f'"{word}" – tongue/mouth moves naturally while speaking')
+            # 通常の会話
+            lip_sync_parts.append(f'日本語セリフ: "{dialogue_clean}"')
+            lip_sync_parts.append('自然な日本語の口の動き')
+            lip_sync_parts.append('母音（あ・い・う・え・お）の口の形を明確に')
+            lip_sync_parts.append('表情と口の動きが完全に同期')
 
-    return "\n".join(lip_sync)
+        return '\n'.join(lip_sync_parts)
+    else:
+        # 英語の場合：従来の処理
+        words = dialogue.upper().split()
+        lip_sync = []
+
+        for i, word in enumerate(words):
+            if i == 0:
+                lip_sync.append(f'"{word}" – mouth opens very wide, jaw drops dramatically')
+            elif i == len(words) - 1:
+                if word.endswith('!!') or word.endswith('!'):
+                    lip_sync.append(f'"{word}" – character screams loudly with mouth stretched extremely wide')
+                else:
+                    lip_sync.append(f'"{word}" – mouth closes slightly, emphasizing final word')
+            else:
+                lip_sync.append(f'"{word}" – tongue/mouth moves naturally while speaking')
+
+        return "\n".join(lip_sync)
 
 
 def generate_prompts(form_data):
@@ -328,7 +366,35 @@ An anthropomorphized {character_subject_en} character - literally a {character_s
     if dialogue_en:
         # セリフありの場合
         lip_sync = generate_lip_sync(dialogue_en)
-        kling_sections.append(f"""Action:
+
+        # 日本語かどうかをチェック
+        has_japanese = any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9faf' for c in dialogue_en)
+
+        if has_japanese:
+            # 日本語セリフの場合
+            kling_sections.append(f"""Action:
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion and speaks in Japanese toward the camera.
+
+DIALOGUE (Japanese audio with perfect lip sync):
+{lip_sync}
+
+Character performance:
+- Mouth movements perfectly synchronized with Japanese phonetics
+- Clear articulation of vowel sounds (あ・い・う・え・お shapes)
+- Expression matches the emotional tone of the dialogue
+- Tiny arms gesture dramatically to emphasize the words
+- Body language reinforces the meaning and emotion
+
+Animation details:
+- Eyes vibrate and bulge dramatically to show emotion
+- Body wobbles in rubber-hose cartoon style while speaking
+- Surrounding biological elements (saliva/moisture) react to the shouting
+- Character leans forward with intensity
+- Facial expressions change naturally throughout the dialogue
+- Perfect timing between audio and lip movements""")
+        else:
+            # 英語セリフの場合
+            kling_sections.append(f"""Action:
 The {character_subject_en} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
 
 "{dialogue_en}"
