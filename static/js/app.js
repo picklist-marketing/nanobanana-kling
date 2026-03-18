@@ -1,6 +1,9 @@
 // グローバル状態
 let currentFormData = null;
 let currentPrompts = null;
+let generatedImage = null; // 生成された画像情報
+let generatedVideos = []; // 生成された動画リスト
+let sceneCount = 0; // シーンカウンター
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,10 +72,24 @@ async function handleFormSubmit(e) {
 // サマリーを更新
 function updateSummary(data) {
     const summary = document.getElementById('summary');
-    let html = `
-        <div style="margin-bottom: 12px;"><strong>商材:</strong> ${data.product_category}</div>
-        <div style="margin-bottom: 12px;"><strong>キャラクター:</strong> ${data.character_subject}</div>
-    `;
+    const characterType = data.character_type || 'nanobanana';
+
+    let html = '';
+
+    if (characterType === 'skeleton') {
+        // ガイコツCR
+        html = `
+            <div style="margin-bottom: 12px;"><strong>モード:</strong> 💀 ガイコツCR</div>
+            <div style="margin-bottom: 12px;"><strong>シーン:</strong> ${data.character_subject}</div>
+        `;
+    } else {
+        // ライフハッくん
+        html = `
+            <div style="margin-bottom: 12px;"><strong>モード:</strong> 🍌 ライフハッくん</div>
+            <div style="margin-bottom: 12px;"><strong>商材:</strong> ${data.product_category}</div>
+            <div style="margin-bottom: 12px;"><strong>対象:</strong> ${data.character_subject}</div>
+        `;
+    }
 
     if (data.dialogue && data.dialogue.trim()) {
         html += `<div style="margin-bottom: 12px;"><strong>セリフ:</strong> "${data.dialogue}"</div>`;
@@ -457,6 +474,13 @@ async function generateImage() {
         const result = await response.json();
 
         if (result.success) {
+            // 画像情報を保存
+            generatedImage = {
+                filename: result.image_filename,
+                url: result.image_url,
+                path: result.image_path
+            };
+
             // 画像を表示
             document.getElementById('generated-image').src = result.image_url;
             document.getElementById('image-result').style.display = 'block';
@@ -464,6 +488,18 @@ async function generateImage() {
 
             // 動画生成ボタンを有効化
             document.getElementById('btn-generate-video').disabled = false;
+
+            // 「続きを作る」ボタンを表示（ライフハッくんモードのみ）
+            const characterType = document.getElementById('character_type').value;
+            if (characterType === 'nanobanana') {
+                document.getElementById('btn-continue-scene').style.display = 'inline-block';
+            }
+
+            // 動画リストをリセット
+            generatedVideos = [];
+            sceneCount = 0;
+            document.getElementById('video-results-list').innerHTML = '';
+            document.getElementById('video-results-container').style.display = 'none';
 
             // localStorageに画像URLを保存
             updateHistoryWithGeneratedMedia('image', result.image_url);
@@ -512,10 +548,20 @@ async function generateVideo() {
         const result = await response.json();
 
         if (result.success) {
-            // 動画を表示
-            const video = document.getElementById('generated-video');
-            video.src = result.video_url;
-            document.getElementById('video-result').style.display = 'block';
+            // 動画をリストに追加
+            sceneCount++;
+            const videoInfo = {
+                sceneNumber: sceneCount,
+                url: result.video_url,
+                filename: result.video_filename,
+                dialogue: currentFormData?.dialogue || '',
+                timestamp: new Date().toLocaleString('ja-JP')
+            };
+            generatedVideos.push(videoInfo);
+
+            // 動画リストを更新
+            addVideoToList(videoInfo);
+            document.getElementById('video-results-container').style.display = 'block';
 
             // localStorageに動画URLを保存
             updateHistoryWithGeneratedMedia('video', result.video_url);
@@ -603,10 +649,18 @@ async function autoGenerateFull() {
             throw new Error(videoResult.error || '動画生成に失敗しました');
         }
 
-        // 動画を表示
-        const video = document.getElementById('generated-video');
-        video.src = videoResult.video_url;
-        document.getElementById('video-result').style.display = 'block';
+        // 動画をリストに追加
+        sceneCount++;
+        const videoInfo = {
+            sceneNumber: sceneCount,
+            url: videoResult.video_url,
+            filename: videoResult.video_filename,
+            dialogue: currentFormData?.dialogue || '',
+            timestamp: new Date().toLocaleString('ja-JP')
+        };
+        generatedVideos.push(videoInfo);
+        addVideoToList(videoInfo);
+        document.getElementById('video-results-container').style.display = 'block';
 
         // localStorageに動画URLを保存
         updateHistoryWithGeneratedMedia('video', videoResult.video_url);
@@ -623,4 +677,87 @@ async function autoGenerateFull() {
         btn.disabled = false;
         btn.innerHTML = '🚀 一括自動生成（Imagen 3 → Veo 3.1）';
     }
+}
+
+// 続きのシーンを作る
+async function continueWithNewScene() {
+    if (!generatedImage) {
+        showToast('⚠️ まず画像を生成してください', 'error');
+        return;
+    }
+
+    // セリフと演出指示をクリア
+    document.getElementById('dialogue').value = '';
+    document.getElementById('additional_direction').value = '';
+
+    // 動画プロンプトのみ再生成
+    showToast('🔄 新しいシーンのプロンプトを生成中...', 'info');
+
+    try {
+        const formData = new FormData(document.getElementById('prompt-form'));
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+
+        currentFormData = data;
+
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('プロンプト生成に失敗しました');
+        }
+
+        const result = await response.json();
+        currentPrompts = result;
+
+        // 動画プロンプトのみ表示
+        document.getElementById('prompt-kling').value = result.kling;
+
+        // サマリーを更新
+        updateSummary(data);
+
+        showToast('✅ 新しいシーンのプロンプトを生成しました！');
+
+        // 動画生成ボタンを有効化
+        document.getElementById('btn-generate-video').disabled = false;
+
+        // プロンプト表示エリアにスクロール
+        document.getElementById('prompt-kling').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    } catch (error) {
+        showToast('❌ ' + error.message, 'error');
+    }
+}
+
+// 動画をリストに追加表示
+function addVideoToList(videoInfo) {
+    const videoList = document.getElementById('video-results-list');
+
+    const videoItem = document.createElement('div');
+    videoItem.className = 'video-item';
+    videoItem.innerHTML = `
+        <div class="video-item-header">
+            <h5>シーン ${videoInfo.sceneNumber}</h5>
+            <span class="video-timestamp">${videoInfo.timestamp}</span>
+        </div>
+        ${videoInfo.dialogue ? `<p class="video-dialogue">💬 "${videoInfo.dialogue}"</p>` : ''}
+        <video controls style="width: 100%; border-radius: 8px; margin: 10px 0;">
+            <source src="${videoInfo.url}" type="video/mp4">
+        </video>
+        <div class="video-actions">
+            <a href="${videoInfo.url}" download="${videoInfo.filename}" class="btn btn-small btn-primary">
+                💾 ダウンロード
+            </a>
+        </div>
+    `;
+
+    videoList.appendChild(videoItem);
+
+    // 新しく追加された動画にスクロール
+    videoItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }

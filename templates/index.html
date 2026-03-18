@@ -17,28 +17,45 @@
             </div>
         </header>
 
+        <!-- モード切り替えタブ -->
+        <div class="mode-selector">
+            <button class="mode-tab active" data-mode="nanobanana" onclick="switchMode('nanobanana')">
+                <span class="mode-icon">🍌</span>
+                <span class="mode-name">ライフハッくん</span>
+                <span class="mode-desc">商材PR向けキャラクター</span>
+            </button>
+            <button class="mode-tab" data-mode="skeleton" onclick="switchMode('skeleton')">
+                <span class="mode-icon">💀</span>
+                <span class="mode-name">ガイコツCR</span>
+                <span class="mode-desc">感情表現向けストーリー</span>
+            </button>
+        </div>
+
         <div class="main-content">
             <!-- 左パネル: 入力フォーム -->
             <aside class="form-panel">
                 <h2>📝 入力フォーム</h2>
 
                 <form id="prompt-form">
+                    <!-- 隠しフィールド: キャラクタータイプ -->
+                    <input type="hidden" id="character_type" name="character_type" value="nanobanana">
+
                     <!-- 基本情報 -->
                     <div class="form-section">
-                        <h3>🛍️ 基本情報</h3>
+                        <h3 id="basic-info-title">🛍️ 基本情報</h3>
 
-                        <div class="form-group">
+                        <div class="form-group" id="product-category-group">
                             <label for="product_category">商材カテゴリ *</label>
                             <input type="text" id="product_category" name="product_category"
-                                   placeholder="例: 歯磨き粉、育毛剤、化粧水" required>
+                                   placeholder="例: 歯磨き粉、育毛剤、化粧水">
                             <small>どんな商品か</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="character_subject">何をキャラにするか *</label>
+                            <label for="character_subject" id="character-subject-label">何をキャラにするか *</label>
                             <input type="text" id="character_subject" name="character_subject"
                                    placeholder="例: 歯垢、毛根、角栓、舌" required>
-                            <small>キャラクターの対象物（日本語OK）</small>
+                            <small id="character-subject-hint">キャラクターの対象物（日本語OK）</small>
                         </div>
 
                         <div class="form-group">
@@ -177,8 +194,13 @@
                         rows="12"
                     ></textarea>
                     <div id="image-result" class="generation-result" style="display: none;">
-                        <h4>✅ 生成された画像</h4>
+                        <h4>✅ 生成されたキャラクター</h4>
                         <img id="generated-image" src="" alt="Generated Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
+                        <div style="margin-top: 16px;">
+                            <button id="btn-continue-scene" class="btn btn-primary btn-large" onclick="continueWithNewScene()" style="display: none;">
+                                ➕ このキャラで続きのシーンを作る
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -201,11 +223,11 @@
                         placeholder="Veo 3.1の構造化プロンプトがここに表示されます..."
                         rows="20"
                     ></textarea>
-                    <div id="video-result" class="generation-result" style="display: none;">
-                        <h4>✅ 生成された動画</h4>
-                        <video id="generated-video" controls style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
-                            <source src="" type="video/mp4">
-                        </video>
+                    <div id="video-results-container" class="generation-result" style="display: none;">
+                        <h4>✅ 生成された動画シーン</h4>
+                        <div id="video-results-list" class="video-list">
+                            <!-- 動画が複数ここに追加される -->
+                        </div>
                     </div>
                 </div>
 
@@ -224,6 +246,55 @@
 
     <!-- トースト通知 -->
     <div id="toast" class="toast"></div>
+
+    <script>
+    // モード切り替え
+    function switchMode(mode) {
+        // タブのアクティブ状態を切り替え
+        document.querySelectorAll('.mode-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`.mode-tab[data-mode="${mode}"]`).classList.add('active');
+
+        // 隠しフィールドを更新
+        document.getElementById('character_type').value = mode;
+
+        // フォームの表示を切り替え
+        toggleCharacterType(mode);
+    }
+
+    // キャラクタータイプに応じてフォームを切り替え
+    function toggleCharacterType(characterType) {
+        if (!characterType) {
+            characterType = document.getElementById('character_type').value;
+        }
+
+        const productCategoryGroup = document.getElementById('product-category-group');
+        const productCategory = document.getElementById('product_category');
+        const characterSubjectLabel = document.getElementById('character-subject-label');
+        const characterSubjectInput = document.getElementById('character_subject');
+        const characterSubjectHint = document.getElementById('character-subject-hint');
+        const basicInfoTitle = document.getElementById('basic-info-title');
+
+        if (characterType === 'skeleton') {
+            // ガイコツモード
+            basicInfoTitle.textContent = '💀 シーン設定';
+            productCategoryGroup.style.display = 'none';
+            productCategory.removeAttribute('required');
+            characterSubjectLabel.textContent = 'シーン・状況 *';
+            characterSubjectInput.placeholder = '例: 暗い会議室で一人、スポットライトの下';
+            characterSubjectHint.textContent = 'ガイコツキャラクターが置かれる状況や環境（日本語OK）';
+        } else {
+            // Nano Bananaモード
+            basicInfoTitle.textContent = '🛍️ 基本情報';
+            productCategoryGroup.style.display = 'block';
+            productCategory.setAttribute('required', 'required');
+            characterSubjectLabel.textContent = '何をキャラにするか *';
+            characterSubjectInput.placeholder = '例: 歯垢、毛根、角栓、舌';
+            characterSubjectHint.textContent = 'キャラクターの対象物（日本語OK）';
+        }
+    }
+    </script>
 
     <script src="/static/js/app.js"></script>
 </body>

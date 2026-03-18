@@ -273,10 +273,160 @@ def generate_lip_sync(dialogue):
         return "\n".join(lip_sync)
 
 
+def generate_skeleton_prompts(form_data):
+    """
+    ガイコツキャラクター用のプロンプトを生成
+    感情的なストーリーテリングに特化
+    """
+    # フォームデータ取得
+    scene_setting = form_data.get('character_subject', '')  # character_subjectをシーン設定として使用
+    dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
+    character_emotion = form_data.get('character_emotion', 'panicked and terrified')
+    visual_style = form_data.get('visual_style', 'grotesque comedy, Pixar meets body horror')
+
+    # 感情に基づいた動作を生成
+    emotion_actions = {
+        'panicked and terrified': {
+            'posture': 'hunched forward with shoulders raised defensively, hands gripping head or covering face',
+            'movement': 'trembling violently, occasional flinching movements, rapid shallow breathing',
+            'eyes': 'eyes wide open in terror, pupils dilated, rapid eye movements scanning surroundings'
+        },
+        'desperate and pleading': {
+            'posture': 'reaching forward with outstretched arms, body leaning forward desperately',
+            'movement': 'hands clasped together in pleading gesture, body rocking slightly',
+            'eyes': 'eyes watery and desperate, intense focus, eyebrows raised in plea'
+        },
+        'crying and sobbing loudly': {
+            'posture': 'collapsed inward, elbows on knees, hands clutching head',
+            'movement': 'shoulders shaking with sobs, occasional convulsive movements, body trembling',
+            'eyes': 'tears streaming continuously, eyes squeezed shut or half-open in anguish'
+        },
+        'angrily shouting': {
+            'posture': 'leaning forward aggressively, fists clenched, body tense and ready',
+            'movement': 'sharp jabbing motions with arms, aggressive gestures, body vibrating with rage',
+            'eyes': 'eyes narrowed in fury, intense glare, eyebrows furrowed deeply'
+        },
+        'exhausted and tired': {
+            'posture': 'slumped forward, head hanging down, arms hanging limply',
+            'movement': 'slow labored breathing, occasional slumping further, minimal energy',
+            'eyes': 'half-closed eyes, vacant stare, slow blinking'
+        },
+        'relieved and comfortable': {
+            'posture': 'relaxed shoulders, body leaning back comfortably, open posture',
+            'movement': 'deep exhale of relief, gentle swaying, relaxed fluid movements',
+            'eyes': 'eyes gently closed or softly gazing, peaceful expression'
+        }
+    }
+
+    # デフォルトのアクション
+    action_details = emotion_actions.get(character_emotion, emotion_actions['panicked and terrified'])
+
+    # 画像生成プロンプト（ベース画像用）
+    image_prompt = f"""A chibi-style 4-head-tall skeleton character in a photorealistic environment.
+
+CHARACTER DESIGN:
+- Chibi proportions: 4 heads tall with oversized head and small body
+- Beige/cream colored bones with realistic bone texture
+- Large cartoonish eyes with realistic pupils showing {character_emotion} emotion
+- Full skeletal anatomy: visible ribcage, spine, pelvis
+- Small arms and legs with defined joints
+- Long tongue hanging out slightly
+- Expressive facial features despite being a skeleton
+
+ENVIRONMENT:
+- {scene_setting}
+- Photorealistic background with dramatic lighting
+- 3D character integrated into realistic setting
+- Rich environmental details and atmosphere
+
+POSE & EXPRESSION:
+- {action_details['posture']}
+- Facial expression showing {character_emotion}
+- {action_details['eyes']}
+
+STYLE:
+- High-quality 3D render
+- Pixar-style character design
+- Photorealistic environment
+- Dramatic cinematic lighting
+- Vertical 9:16 portrait orientation
+- Professional animation-ready character
+
+NO TEXT, NO WORDS, NO LETTERS in the image"""
+
+    # 動画生成プロンプト（アニメーション用）
+    video_sections = []
+
+    # キャラクターデザイン参照
+    video_sections.append(f"""A chibi-style 4-head-tall skeleton character, matching the provided character design.
+
+The character is in: {scene_setting}""")
+
+    # 現在の状態とアクション
+    if dialogue:
+        video_sections.append(f"""The character is experiencing {character_emotion} emotion and speaks with intense feeling.
+
+DIALOGUE: "{dialogue}"
+
+The character's voice matches the emotional intensity.""")
+    else:
+        video_sections.append(f"""The character is experiencing {character_emotion} emotion through powerful body language.""")
+
+    # 詳細な姿勢とボディランゲージ
+    video_sections.append(f"""POSTURE & BODY LANGUAGE:
+{action_details['posture']}
+
+MOVEMENT DETAILS:
+{action_details['movement']}
+
+FACIAL EXPRESSION:
+{action_details['eyes']}
+The long tongue hangs downward, swaying with breath and emotion.""")
+
+    # 環境の詳細
+    scene_description = translate_to_english(scene_setting) if scene_setting else "dramatic environment"
+    video_sections.append(f"""ENVIRONMENT:
+{scene_description}
+The setting enhances the emotional narrative.
+Dramatic lighting isolates the character.
+Environmental details are clearly readable and support the storytelling.""")
+
+    # シネマティック指示
+    video_sections.append(f"""CINEMATOGRAPHY:
+High-quality 3D animation with Pixar-style emotional acting.
+Strong readable posing and clear storytelling.
+Camera slowly pushes in, focusing on the character's emotional state.
+Lighting emphasizes the drama and mood.
+Vertical 9:16 format.""")
+
+    # 追加の演出指示
+    if additional_direction:
+        additional_en = translate_to_english(additional_direction)
+        video_sections.append(f"""ADDITIONAL DIRECTION:
+{additional_en}""")
+
+    # キーワード
+    emotion_keywords = character_emotion.replace(' and ', ', ')
+    video_sections.append(f"""Keywords: chibi skeleton, {emotion_keywords}, emotional storytelling, Pixar-style animation, dramatic lighting, clear narrative, cinematic composition, 9:16 vertical format""")
+
+    video_prompt = "\n\n".join(video_sections)
+
+    return image_prompt, video_prompt
+
+
 def generate_prompts(form_data):
     """
     Kling公式フォーマットでプロンプトを生成
+    キャラクタータイプに応じて適切な関数を呼び出す
     """
+    character_type = form_data.get('character_type', 'nanobanana')
+
+    # スケルトンキャラクターの場合
+    if character_type == 'skeleton':
+        return generate_skeleton_prompts(form_data)
+
+    # Nano Bananaキャラクターの場合（従来の処理）
     # フォームデータ取得
     product_category = form_data.get('product_category', '')
     character_subject = form_data.get('character_subject', '')
