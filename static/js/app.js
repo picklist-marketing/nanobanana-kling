@@ -141,9 +141,13 @@ function getStyleLabel(value) {
 
 // ボタンを有効化
 function enableButtons() {
-    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling, #btn-open-nano, #btn-open-kling').forEach(btn => {
+    document.querySelectorAll('#btn-copy-nano, #btn-copy-kling').forEach(btn => {
         btn.disabled = false;
     });
+    // 自動生成ボタンを有効化
+    document.getElementById('btn-generate-image').disabled = false;
+    document.getElementById('btn-auto-generate').disabled = false;
+    // 動画生成ボタンは画像生成後に有効化
 }
 
 // プロンプトをコピー
@@ -392,4 +396,196 @@ function showToast(message, type = 'success') {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
+}
+
+// ==============================
+// 自動生成機能（Google AI統合）
+// ==============================
+
+let generatedImageFilename = null;
+
+// 画像生成
+async function generateImage() {
+    if (!currentPrompts || !currentPrompts.nano_banana) {
+        showToast('⚠️ まずプロンプトを生成してください', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-generate-image');
+    btn.disabled = true;
+    btn.innerHTML = '🔄 画像生成中...';
+
+    showToast('🎨 Imagen 3で画像を生成中...', 'info');
+
+    try {
+        const response = await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: currentPrompts.nano_banana
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || '画像生成に失敗しました');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 画像を表示
+            document.getElementById('generated-image').src = result.image_url;
+            document.getElementById('image-result').style.display = 'block';
+            generatedImageFilename = result.image_filename;
+
+            // 動画生成ボタンを有効化
+            document.getElementById('btn-generate-video').disabled = false;
+
+            showToast('✅ 画像生成完了！');
+        } else {
+            throw new Error(result.error || '画像生成に失敗しました');
+        }
+    } catch (error) {
+        showToast('❌ ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🎨 画像生成';
+    }
+}
+
+// 動画生成
+async function generateVideo() {
+    if (!currentPrompts || !currentPrompts.kling) {
+        showToast('⚠️ まずプロンプトを生成してください', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-generate-video');
+    btn.disabled = true;
+    btn.innerHTML = '🔄 動画生成中...（数分かかります）';
+
+    showToast('🎬 Veo 3.1で動画を生成中...お待ちください', 'info');
+
+    try {
+        const response = await fetch('/api/generate-video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: currentPrompts.kling,
+                image_filename: generatedImageFilename,
+                dialogue: currentFormData?.dialogue || ''
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || '動画生成に失敗しました');
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            // 動画を表示
+            const video = document.getElementById('generated-video');
+            video.src = result.video_url;
+            document.getElementById('video-result').style.display = 'block';
+
+            showToast('✅ 動画生成完了！');
+        } else {
+            throw new Error(result.error || '動画生成に失敗しました');
+        }
+    } catch (error) {
+        showToast('❌ ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🎬 動画生成';
+    }
+}
+
+// 一括自動生成（画像→動画）
+async function autoGenerateFull() {
+    if (!currentPrompts) {
+        showToast('⚠️ まずプロンプトを生成してください', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('btn-auto-generate');
+    const status = document.getElementById('auto-generate-status');
+
+    btn.disabled = true;
+    btn.innerHTML = '🔄 自動生成中...';
+
+    try {
+        // ステップ1: 画像生成
+        status.innerHTML = '<p style="color: #2196F3;">🎨 ステップ1/2: Imagen 3で画像生成中...</p>';
+        showToast('🎨 画像生成中...', 'info');
+
+        const imageResponse = await fetch('/api/generate-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: currentPrompts.nano_banana
+            })
+        });
+
+        if (!imageResponse.ok) {
+            const error = await imageResponse.json();
+            throw new Error(error.error || '画像生成に失敗しました');
+        }
+
+        const imageResult = await imageResponse.json();
+
+        if (!imageResult.success) {
+            throw new Error(imageResult.error || '画像生成に失敗しました');
+        }
+
+        // 画像を表示
+        document.getElementById('generated-image').src = imageResult.image_url;
+        document.getElementById('image-result').style.display = 'block';
+
+        status.innerHTML += '<p style="color: #4CAF50;">✅ 画像生成完了！</p>';
+
+        // ステップ2: 動画生成
+        status.innerHTML += '<p style="color: #2196F3;">🎬 ステップ2/2: Veo 3.1で動画生成中...（数分かかります）</p>';
+        showToast('🎬 動画生成中...お待ちください', 'info');
+
+        const videoResponse = await fetch('/api/generate-video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: currentPrompts.kling,
+                image_filename: imageResult.image_filename,
+                dialogue: currentFormData?.dialogue || ''
+            })
+        });
+
+        if (!videoResponse.ok) {
+            const error = await videoResponse.json();
+            throw new Error(error.error || '動画生成に失敗しました');
+        }
+
+        const videoResult = await videoResponse.json();
+
+        if (!videoResult.success) {
+            throw new Error(videoResult.error || '動画生成に失敗しました');
+        }
+
+        // 動画を表示
+        const video = document.getElementById('generated-video');
+        video.src = videoResult.video_url;
+        document.getElementById('video-result').style.display = 'block';
+
+        status.innerHTML += '<p style="color: #4CAF50;">✅ 動画生成完了！</p>';
+        status.innerHTML += '<p style="color: #4CAF50; font-weight: bold;">🎉 すべての生成が完了しました！</p>';
+
+        showToast('🎉 画像・動画の生成が完了しました！');
+
+    } catch (error) {
+        status.innerHTML += `<p style="color: #f44336;">❌ エラー: ${error.message}</p>`;
+        showToast('❌ ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🚀 一括自動生成（Imagen 3 → Veo 3.1）';
+    }
 }

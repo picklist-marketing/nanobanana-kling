@@ -143,13 +143,13 @@
                 <!-- Nano Banana プロンプト -->
                 <div class="prompt-section">
                     <div class="prompt-header">
-                        <h3>📸 Nano Banana（画像生成）</h3>
+                        <h3>📸 Imagen 3（画像生成）</h3>
                         <div class="prompt-actions">
                             <button id="btn-copy-nano" class="btn btn-primary" onclick="copyPrompt('nano')" disabled>
                                 📋 コピー
                             </button>
-                            <button id="btn-open-nano" class="btn btn-success" onclick="copyAndOpenNanoBanana()" disabled>
-                                🚀 Geminiで開く
+                            <button id="btn-generate-image" class="btn btn-success" onclick="generateImage()" disabled>
+                                🎨 画像生成
                             </button>
                         </div>
                     </div>
@@ -159,27 +159,51 @@
                         placeholder="フォームに入力して「プロンプト生成」ボタンを押してください..."
                         rows="12"
                     ></textarea>
+                    <div id="image-result" class="generation-result" style="display: none;">
+                        <h4>✅ 生成された画像</h4>
+                        <img id="generated-image" src="" alt="Generated Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
+                    </div>
                 </div>
 
-                <!-- Kling プロンプト -->
+                <!-- Veo 3.1 プロンプト -->
                 <div class="prompt-section">
                     <div class="prompt-header">
-                        <h3>🎬 Kling（動画化）- 構造化フォーマット</h3>
+                        <h3>🎬 Veo 3.1（動画生成）- 構造化フォーマット</h3>
                         <div class="prompt-actions">
                             <button id="btn-copy-kling" class="btn btn-primary" onclick="copyPrompt('kling')" disabled>
                                 📋 コピー
                             </button>
-                            <button id="btn-open-kling" class="btn btn-success" onclick="copyAndOpenKling()" disabled>
-                                🚀 Higgsfieldで開く
+                            <button id="btn-generate-video" class="btn btn-success" onclick="generateVideo()" disabled>
+                                🎬 動画生成
                             </button>
                         </div>
                     </div>
                     <textarea
                         id="prompt-kling"
                         class="prompt-textarea"
-                        placeholder="Klingの構造化プロンプトがここに表示されます..."
+                        placeholder="Veo 3.1の構造化プロンプトがここに表示されます..."
                         rows="20"
                     ></textarea>
+                    <div id="video-result" class="generation-result" style="display: none;">
+                        <h4>✅ 生成された動画</h4>
+                        <video id="generated-video" controls style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
+                            <source src="" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <!-- 一括自動生成 -->
+                <div class="prompt-section auto-generate-section">
+                    <div class="prompt-header">
+                        <h3>🚀 自動生成（画像→動画）</h3>
+                    </div>
+                    <div class="auto-generate-box">
+                        <p>プロンプトを生成してから、ボタンを押すと自動で画像→動画を生成します</p>
+                        <button id="btn-auto-generate" class="btn btn-primary btn-large" onclick="autoGenerateFull()" disabled>
+                            🚀 一括自動生成（Imagen 3 → Veo 3.1）
+                        </button>
+                        <div id="auto-generate-status" class="status-message"></div>
+                    </div>
                 </div>
 
                 <!-- 生成した設定の概要 -->

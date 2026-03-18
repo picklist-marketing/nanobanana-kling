@@ -59,7 +59,16 @@
 
 ## 環境変数
 
-特に必要な環境変数はありません。
+Vercelダッシュボードで以下の環境変数を設定してください：
+
+1. Vercelプロジェクトの Settings > Environment Variables に移動
+2. 以下の変数を追加：
+
+| 変数名 | 値 | 説明 |
+|--------|-----|------|
+| `GOOGLE_API_KEY` | `AIzaSy...` | Google AI API Key（Imagen & Veo用） |
+
+**重要**: `.env` ファイルはGitにコミットしないでください（.gitignoreに含まれています）
 
 ## トラブルシューティング
 

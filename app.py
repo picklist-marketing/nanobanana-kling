@@ -4,12 +4,17 @@ Nano Banana × Kling プロンプト生成/管理 Web UI
 Kling公式フォーマット対応版（構造化 + セリフ対応）
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import json
 import os
 from datetime import datetime
 from pathlib import Path
 from deep_translator import GoogleTranslator
+import google.generativeai as genai
+from dotenv import load_dotenv
+import time
+import base64
+import requests
 
 # プロジェクトディレクトリを明示的に指定
 PROJECT_DIR = Path(__file__).parent
@@ -17,11 +22,25 @@ app = Flask(__name__,
             static_folder=str(PROJECT_DIR / 'static'),
             template_folder=str(PROJECT_DIR / 'templates'))
 
+# 環境変数をロード
+load_dotenv(PROJECT_DIR / '.env')
+
+# Google AI APIの初期化
+GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+if GOOGLE_API_KEY:
+    genai.configure(api_key=GOOGLE_API_KEY)
+    print(f"✅ Google AI API initialized")
+else:
+    print("⚠️  Warning: GOOGLE_API_KEY not found in .env file")
+
 # Vercel環境かどうかを判定
 IS_VERCEL = os.environ.get('VERCEL') == '1'
 
-# 出力ディレクトリ
-OUTPUTS_DIR = PROJECT_DIR / "outputs"
+# 出力ディレクトリ（Vercelでは/tmpを使用）
+if IS_VERCEL:
+    OUTPUTS_DIR = Path("/tmp/outputs")
+else:
+    OUTPUTS_DIR = PROJECT_DIR / "outputs"
 HISTORY_FILE = OUTPUTS_DIR / "prompt-history.json"
 
 
@@ -231,7 +250,7 @@ def generate_prompts(form_data):
 
     # 各フィールドを英語に翻訳
     character_subject_en = translate_subject_to_english(character_subject)
-    dialogue_en = translate_to_english(dialogue) if dialogue else ''
+    dialogue_en = dialogue if dialogue else ''  # 日本語のまま使用（翻訳しない）
     additional_direction_en = translate_to_english(additional_direction) if additional_direction else ''
 
     # 環境と色、質感を自動推測（英語版を使用）
@@ -488,21 +507,351 @@ def delete_prompt(prompt_id):
     return jsonify({'success': True})
 
 
+def generate_image_with_imagen(prompt):
+    """Imagen 4.0で画像を生成（REST API使用）"""
+    try:
+        print(f"\n🎨 Imagen 4.0 画像生成開始...")
+        print(f"プロンプト: {prompt[:100]}...")
+
+        # Google AI REST APIエンドポイント（Imagen 4.0 Fast）
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GOOGLE_API_KEY}"
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "instances": [{
+                "prompt": prompt
+            }],
+            "parameters": {
+                "sampleCount": 1,
+                "aspectRatio": "9:16",
+                "safetyFilterLevel": "block_some",
+                "personGeneration": "allow_all"
+            }
+        }
+
+        response = requests.post(url, headers=headers, json=payload, timeout=120)
+
+        if response.status_code != 200:
+            raise Exception(f"API Error {response.status_code}: {response.text}")
+
+        result = response.json()
+        print(f"API Response: {result}")
+
+        # 画像データを取得（base64エンコードされている）
+        if 'predictions' in result and len(result['predictions']) > 0:
+            prediction = result['predictions'][0]
+
+            # レスポンス形式を確認
+            if 'bytesBase64Encoded' in prediction:
+                image_b64 = prediction['bytesBase64Encoded']
+            elif 'image' in prediction and 'bytesBase64Encoded' in prediction['image']:
+                image_b64 = prediction['image']['bytesBase64Encoded']
+            else:
+                raise Exception(f"Unknown response format: {prediction}")
+
+            image_data = base64.b64decode(image_b64)
+
+            # 画像を保存
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            image_filename = f"generated_image_{timestamp}.png"
+            image_path = OUTPUTS_DIR / image_filename
+
+            with open(image_path, 'wb') as f:
+                f.write(image_data)
+
+            print(f"✅ 画像生成完了: {image_filename}")
+
+            return {
+                'success': True,
+                'image_path': str(image_path),
+                'image_filename': image_filename,
+                'image_url': f'/outputs/{image_filename}'
+            }
+        else:
+            raise Exception(f"No predictions in response: {result}")
+
+    except Exception as e:
+        print(f"❌ Imagen 4.0エラー: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+
+def generate_video_with_veo(prompt, image_path=None, dialogue=None):
+    """Veo 3.1で動画を生成（REST API使用）"""
+    try:
+        print(f"\n🎬 Veo 3.1 動画生成開始...")
+        print(f"プロンプト: {prompt[:100]}...")
+        if dialogue:
+            print(f"セリフ: {dialogue}")
+
+        # セリフがある場合は音声指示を追加
+        if dialogue:
+            full_prompt = f"{prompt}\n\nThe character speaks in Japanese: \"{dialogue}\"\nGenerate matching lip sync and voice audio."
+        else:
+            full_prompt = prompt
+
+        # Google AI REST APIエンドポイント（Veo 3.1 Fast）
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:predictLongRunning?key={GOOGLE_API_KEY}"
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "instances": [{
+                "prompt": full_prompt
+            }],
+            "parameters": {
+                "aspectRatio": "9:16"
+            }
+        }
+
+        # 画像がある場合は画像データを追加
+        if image_path and Path(image_path).exists():
+            print(f"📸 画像から動画生成: {image_path}")
+            with open(image_path, 'rb') as f:
+                image_b64 = base64.b64encode(f.read()).decode('utf-8')
+            # 画像データを正しい構造で送信（bytesBase64EncodedとmimeTypeが必要）
+            payload["instances"][0]["image"] = {
+                "bytesBase64Encoded": image_b64,
+                "mimeType": "image/png"
+            }
+
+        print(f"🚀 動画生成リクエスト送信中...")
+        response = requests.post(url, headers=headers, json=payload, timeout=300)
+
+        if response.status_code != 200:
+            raise Exception(f"API Error {response.status_code}: {response.text}")
+
+        result = response.json()
+        print(f"API Response: {result}")
+
+        # predictLongRunningはoperation IDを返す
+        if 'name' in result:
+            # Long-running operationの場合
+            operation_name = result['name']
+            print(f"⏳ 動画生成中... Operation: {operation_name}")
+
+            # Operationのステータスをポーリング
+            max_attempts = 60  # 最大5分（5秒 × 60回）
+            for attempt in range(max_attempts):
+                print(f"⏳ ポーリング中... ({attempt + 1}/{max_attempts})")
+                time.sleep(5)  # 5秒待機
+
+                # Operation状態を確認
+                op_url = f"https://generativelanguage.googleapis.com/v1beta/{operation_name}?key={GOOGLE_API_KEY}"
+                op_response = requests.get(op_url)
+
+                if op_response.status_code != 200:
+                    print(f"⚠️  Operation status check failed: {op_response.text}")
+                    continue
+
+                op_result = op_response.json()
+                print(f"Operation status: {op_result.get('done', False)}")
+
+                # 完了チェック
+                if op_result.get('done', False):
+                    print(f"✅ 動画生成完了！")
+
+                    # エラーチェック
+                    if 'error' in op_result:
+                        raise Exception(f"Operation failed: {op_result['error']}")
+
+                    # 結果を取得
+                    if 'response' in op_result:
+                        result = op_result['response']
+                        break
+                    else:
+                        raise Exception(f"No response in completed operation: {op_result}")
+
+            else:
+                # タイムアウト
+                raise Exception(f"Video generation timed out after {max_attempts * 5} seconds")
+
+        # 動画データを取得
+        video_data = None
+
+        # レスポンス形式1: generateVideoResponse（URI形式）
+        if 'generateVideoResponse' in result:
+            generated_samples = result['generateVideoResponse'].get('generatedSamples', [])
+            if generated_samples and 'video' in generated_samples[0]:
+                video_uri = generated_samples[0]['video'].get('uri')
+                if video_uri:
+                    print(f"📥 動画をダウンロード中: {video_uri}")
+                    # URIから動画をダウンロード（API keyを追加）
+                    download_url = f"{video_uri}&key={GOOGLE_API_KEY}" if '?' in video_uri else f"{video_uri}?key={GOOGLE_API_KEY}"
+                    video_response = requests.get(download_url, timeout=120)
+                    if video_response.status_code == 200:
+                        video_data = video_response.content
+                        print(f"✅ 動画ダウンロード完了: {len(video_data)} bytes")
+                    else:
+                        raise Exception(f"Failed to download video: {video_response.status_code} {video_response.text}")
+
+        # レスポンス形式2: predictions（base64形式）
+        elif 'predictions' in result and len(result['predictions']) > 0:
+            prediction = result['predictions'][0]
+            if 'bytesBase64Encoded' in prediction:
+                video_b64 = prediction['bytesBase64Encoded']
+            elif 'video' in prediction and 'bytesBase64Encoded' in prediction['video']:
+                video_b64 = prediction['video']['bytesBase64Encoded']
+            else:
+                raise Exception(f"Unknown prediction format: {prediction}")
+            video_data = base64.b64decode(video_b64)
+
+        if video_data:
+            # 動画を保存
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            video_filename = f"generated_video_{timestamp}.mp4"
+            video_path = OUTPUTS_DIR / video_filename
+
+            with open(video_path, 'wb') as f:
+                f.write(video_data)
+
+            print(f"✅ 動画保存完了: {video_filename}")
+
+            return {
+                'success': True,
+                'video_path': str(video_path),
+                'video_filename': video_filename,
+                'video_url': f'/outputs/{video_filename}'
+            }
+        else:
+            raise Exception(f"No video data in response: {result}")
+
+    except Exception as e:
+        print(f"❌ Veo 3.1エラー: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return {
+            'success': False,
+            'error': str(e)
+        }
+
+
+@app.route('/api/generate-image', methods=['POST'])
+def api_generate_image():
+    """画像生成APIエンドポイント"""
+    try:
+        data = request.json
+        prompt = data.get('prompt')
+
+        if not prompt:
+            return jsonify({'success': False, 'error': 'プロンプトが必要です'}), 400
+
+        if not GOOGLE_API_KEY:
+            return jsonify({'success': False, 'error': 'Google API Keyが設定されていません'}), 500
+
+        result = generate_image_with_imagen(prompt)
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/generate-video', methods=['POST'])
+def api_generate_video():
+    """動画生成APIエンドポイント"""
+    try:
+        data = request.json
+        prompt = data.get('prompt')
+        image_filename = data.get('image_filename')
+        dialogue = data.get('dialogue', '')
+
+        if not prompt:
+            return jsonify({'success': False, 'error': 'プロンプトが必要です'}), 400
+
+        if not GOOGLE_API_KEY:
+            return jsonify({'success': False, 'error': 'Google API Keyが設定されていません'}), 500
+
+        # 画像パスを取得
+        image_path = None
+        if image_filename:
+            image_path = str(OUTPUTS_DIR / image_filename)
+
+        result = generate_video_with_veo(prompt, image_path, dialogue)
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/generate-full', methods=['POST'])
+def api_generate_full():
+    """画像→動画の一括生成APIエンドポイント"""
+    try:
+        data = request.json
+        image_prompt = data.get('image_prompt')
+        video_prompt = data.get('video_prompt')
+        dialogue = data.get('dialogue', '')
+
+        if not image_prompt or not video_prompt:
+            return jsonify({'success': False, 'error': 'プロンプトが必要です'}), 400
+
+        if not GOOGLE_API_KEY:
+            return jsonify({'success': False, 'error': 'Google API Keyが設定されていません'}), 500
+
+        # 1. 画像生成
+        image_result = generate_image_with_imagen(image_prompt)
+        if not image_result['success']:
+            return jsonify(image_result), 500
+
+        # 2. 動画生成
+        video_result = generate_video_with_veo(
+            video_prompt,
+            image_result['image_path'],
+            dialogue
+        )
+
+        if not video_result['success']:
+            return jsonify(video_result), 500
+
+        # 両方成功
+        return jsonify({
+            'success': True,
+            'image': image_result,
+            'video': video_result
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/outputs/<filename>')
+def serve_output(filename):
+    """生成したファイルを配信"""
+    file_path = OUTPUTS_DIR / filename
+    if file_path.exists():
+        return send_file(file_path)
+    return jsonify({'error': 'File not found'}), 404
+
+
 if __name__ == '__main__':
     OUTPUTS_DIR.mkdir(exist_ok=True)
 
     print("\n" + "="*70)
-    print("🎨 Nano Banana × Kling プロンプト生成UI v4.2")
+    print("🎨 Nano Banana × Veo 3.1 プロンプト生成 & 自動生成UI v5.0")
     print("="*70)
     print(f"\n✅ サーバー起動: http://localhost:5051")
     print(f"✅ LAN接続: http://0.0.0.0:5051")
     print("\n📁 プロジェクト: ~/Projects/nanobanana-kling")
     print(f"📊 履歴ファイル: {HISTORY_FILE}")
-    print("\n💡 新機能:")
-    print("  ✨ Kling公式フォーマット対応（構造化プロンプト）")
-    print("  ✨ セリフ入力対応（任意）")
+    print(f"🎬 出力ディレクトリ: {OUTPUTS_DIR}")
+    print("\n🚀 Google AI統合:")
+    print("  ✅ Imagen 3（画像生成）")
+    print("  ✅ Veo 3.1（動画生成）- 日本語音声対応")
+    print("  ✅ 自動生成機能（画像→動画）")
+    print("\n💡 機能:")
+    print("  ✨ プロンプト自動生成")
+    print("  ✨ セリフ入力対応（日本語OK）")
     print("  ✨ 自動リップシンク生成")
-    print("  ✨ Subject/Context/Action/Style/Camera/Composition/Effects")
+    print("  ✨ 縦長動画対応（9:16）")
     print("\n" + "="*70 + "\n")
 
     app.run(host='0.0.0.0', port=5051, debug=True)

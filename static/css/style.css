@@ -455,3 +455,64 @@ header h1 {
 ::-webkit-scrollbar-thumb:hover {
     background: #868e96;
 }
+
+/* 自動生成セクション */
+.auto-generate-section {
+    border: 3px solid #667eea;
+    background: linear-gradient(135deg, #f5f7ff 0%, #e8edff 100%);
+}
+
+.auto-generate-box {
+    padding: 20px;
+    text-align: center;
+}
+
+.auto-generate-box p {
+    margin-bottom: 16px;
+    font-size: 1.05rem;
+    color: #495057;
+}
+
+.btn-large {
+    padding: 18px 32px;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.status-message {
+    margin-top: 16px;
+    padding: 16px;
+    background: white;
+    border-radius: 8px;
+    text-align: left;
+    min-height: 40px;
+}
+
+.status-message p {
+    margin: 8px 0;
+    font-size: 1rem;
+}
+
+/* 生成結果表示 */
+.generation-result {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #51cf66;
+}
+
+.generation-result h4 {
+    color: #2c3e50;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+}
+
+.generation-result img,
+.generation-result video {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast.info {
+    background: #2196F3;
+}
