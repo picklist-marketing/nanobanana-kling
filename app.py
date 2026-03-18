@@ -459,6 +459,12 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/gallery')
+def gallery():
+    """ギャラリーページ"""
+    return render_template('gallery.html')
+
+
 @app.route('/api/generate', methods=['POST'])
 def generate():
     """プロンプトを生成"""

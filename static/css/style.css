@@ -48,9 +48,21 @@ header h1 {
 /* メインコンテンツ */
 .main-content {
     display: grid;
-    grid-template-columns: 380px 1fr 320px;
+    grid-template-columns: 380px 1fr;
     gap: 20px;
     align-items: start;
+}
+
+/* ナビゲーションボタン */
+.nav-buttons {
+    margin-top: 16px;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.nav-buttons a {
+    text-decoration: none;
 }
 
 /* フォームパネル（左） */
@@ -420,7 +432,7 @@ header h1 {
 /* レスポンシブ */
 @media (max-width: 1400px) {
     .main-content {
-        grid-template-columns: 340px 1fr 280px;
+        grid-template-columns: 340px 1fr;
     }
 }
 
@@ -429,8 +441,7 @@ header h1 {
         grid-template-columns: 1fr;
     }
 
-    .form-panel,
-    .history-panel {
+    .form-panel {
         position: static;
         max-height: none;
     }

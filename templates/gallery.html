@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 ギャラリー - アニメCR作るくん</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/gallery.css">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header>
+            <h1>🎬 アニメCR作るくん - ギャラリー</h1>
+            <p class="subtitle">生成した作品一覧</p>
+            <div class="nav-buttons">
+                <a href="/" class="btn btn-secondary">← 生成ページに戻る</a>
+            </div>
+        </header>
+
+        <!-- ギャラリー -->
+        <main class="gallery-main">
+            <div class="gallery-header">
+                <h2>📊 生成履歴 & ギャラリー</h2>
+                <div class="gallery-controls">
+                    <button id="btn-refresh-gallery" class="btn btn-small">🔄 更新</button>
+                    <button id="btn-clear-all" class="btn btn-small btn-danger">🗑️ すべて削除</button>
+                </div>
+            </div>
+
+            <div id="gallery-grid" class="gallery-grid">
+                <!-- ギャラリーアイテムがここに表示されます -->
+            </div>
+
+            <div id="empty-state" class="empty-state">
+                <p>まだ生成されたコンテンツがありません</p>
+                <a href="/" class="btn btn-primary">生成ページへ</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- モーダル -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/gallery.js"></script>
+</body>
+</html>

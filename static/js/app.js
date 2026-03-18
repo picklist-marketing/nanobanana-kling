@@ -242,6 +242,29 @@ async function saveToHistory() {
     }
 }
 
+// 生成されたメディアを履歴に追加
+function updateHistoryWithGeneratedMedia(type, url) {
+    try {
+        const localHistory = localStorage.getItem('prompt-history');
+        if (!localHistory) return;
+
+        let history = JSON.parse(localHistory);
+        if (history.length === 0) return;
+
+        // 最新のエントリーに追加
+        const latestEntry = history[0];
+        if (type === 'image') {
+            latestEntry.generatedImage = url;
+        } else if (type === 'video') {
+            latestEntry.generatedVideo = url;
+        }
+
+        localStorage.setItem('prompt-history', JSON.stringify(history));
+    } catch (error) {
+        console.error('Failed to update history with generated media:', error);
+    }
+}
+
 // 履歴を読み込み
 async function loadHistory() {
     try {
@@ -442,6 +465,9 @@ async function generateImage() {
             // 動画生成ボタンを有効化
             document.getElementById('btn-generate-video').disabled = false;
 
+            // localStorageに画像URLを保存
+            updateHistoryWithGeneratedMedia('image', result.image_url);
+
             showToast('✅ 画像生成完了！');
         } else {
             throw new Error(result.error || '画像生成に失敗しました');
@@ -490,6 +516,9 @@ async function generateVideo() {
             const video = document.getElementById('generated-video');
             video.src = result.video_url;
             document.getElementById('video-result').style.display = 'block';
+
+            // localStorageに動画URLを保存
+            updateHistoryWithGeneratedMedia('video', result.video_url);
 
             showToast('✅ 動画生成完了！');
         } else {
@@ -544,6 +573,9 @@ async function autoGenerateFull() {
         document.getElementById('generated-image').src = imageResult.image_url;
         document.getElementById('image-result').style.display = 'block';
 
+        // localStorageに画像URLを保存
+        updateHistoryWithGeneratedMedia('image', imageResult.image_url);
+
         status.innerHTML += '<p style="color: #4CAF50;">✅ 画像生成完了！</p>';
 
         // ステップ2: 動画生成
@@ -575,6 +607,9 @@ async function autoGenerateFull() {
         const video = document.getElementById('generated-video');
         video.src = videoResult.video_url;
         document.getElementById('video-result').style.display = 'block';
+
+        // localStorageに動画URLを保存
+        updateHistoryWithGeneratedMedia('video', videoResult.video_url);
 
         status.innerHTML += '<p style="color: #4CAF50;">✅ 動画生成完了！</p>';
         status.innerHTML += '<p style="color: #4CAF50; font-weight: bold;">🎉 すべての生成が完了しました！</p>';
