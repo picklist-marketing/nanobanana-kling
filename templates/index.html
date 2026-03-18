@@ -140,6 +140,20 @@
                     <h2 id="result-title">生成結果</h2>
                 </div>
 
+                <!-- 一括自動生成 -->
+                <div class="prompt-section auto-generate-section">
+                    <div class="prompt-header">
+                        <h3>🚀 自動生成（画像→動画）</h3>
+                    </div>
+                    <div class="auto-generate-box">
+                        <p>プロンプトを生成してから、ボタンを押すと自動で画像→動画を生成します</p>
+                        <button id="btn-auto-generate" class="btn btn-primary btn-large" onclick="autoGenerateFull()" disabled>
+                            🚀 一括自動生成（Imagen 4 → Veo 3.1）
+                        </button>
+                        <div id="auto-generate-status" class="status-message"></div>
+                    </div>
+                </div>
+
                 <!-- Nano Banana プロンプト -->
                 <div class="prompt-section">
                     <div class="prompt-header">
@@ -189,20 +203,6 @@
                         <video id="generated-video" controls style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
                             <source src="" type="video/mp4">
                         </video>
-                    </div>
-                </div>
-
-                <!-- 一括自動生成 -->
-                <div class="prompt-section auto-generate-section">
-                    <div class="prompt-header">
-                        <h3>🚀 自動生成（画像→動画）</h3>
-                    </div>
-                    <div class="auto-generate-box">
-                        <p>プロンプトを生成してから、ボタンを押すと自動で画像→動画を生成します</p>
-                        <button id="btn-auto-generate" class="btn btn-primary btn-large" onclick="autoGenerateFull()" disabled>
-                            🚀 一括自動生成（Imagen 3 → Veo 3.1）
-                        </button>
-                        <div id="auto-generate-status" class="status-message"></div>
                     </div>
                 </div>
 
