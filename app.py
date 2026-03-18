@@ -516,6 +516,9 @@ def delete_prompt(prompt_id):
 def generate_image_with_imagen(prompt):
     """Imagen 4.0で画像を生成（REST API使用）"""
     try:
+        # 出力ディレクトリを確保
+        OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+
         print(f"\n🎨 Imagen 4.0 画像生成開始...")
         print(f"プロンプト: {prompt[:100]}...")
 
@@ -592,6 +595,9 @@ def generate_image_with_imagen(prompt):
 def generate_video_with_veo(prompt, image_path=None, dialogue=None):
     """Veo 3.1で動画を生成（REST API使用）"""
     try:
+        # 出力ディレクトリを確保
+        OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+
         print(f"\n🎬 Veo 3.1 動画生成開始...")
         print(f"プロンプト: {prompt[:100]}...")
         if dialogue:
@@ -839,7 +845,7 @@ def serve_output(filename):
 
 
 if __name__ == '__main__':
-    OUTPUTS_DIR.mkdir(exist_ok=True)
+    OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 
     print("\n" + "="*70)
     print("🎬 アニメCR作るくん v5.0")
