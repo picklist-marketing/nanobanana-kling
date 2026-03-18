@@ -836,7 +836,7 @@ if __name__ == '__main__':
     OUTPUTS_DIR.mkdir(exist_ok=True)
 
     print("\n" + "="*70)
-    print("🎨 Nano Banana × Veo 3.1 プロンプト生成 & 自動生成UI v5.0")
+    print("🎬 アニメCR作るくん v5.0")
     print("="*70)
     print(f"\n✅ サーバー起動: http://localhost:5051")
     print(f"✅ LAN接続: http://0.0.0.0:5051")
