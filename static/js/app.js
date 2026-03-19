@@ -529,9 +529,9 @@ async function generateImage() {
             // 動画生成ボタンを有効化
             document.getElementById('btn-generate-video').disabled = false;
 
-            // 「続きを作る」ボタンを表示（ライフハッくんモードのみ）
+            // 「続きを作る」ボタンを表示（ライフハッくんとわんこCRモード）
             const characterType = document.getElementById('character_type').value;
-            if (characterType === 'nanobanana') {
+            if (characterType === 'nanobanana' || characterType === 'dog') {
                 document.getElementById('btn-continue-scene').style.display = 'inline-block';
             } else {
                 document.getElementById('btn-continue-scene').style.display = 'none';
@@ -728,9 +728,18 @@ async function continueWithNewScene() {
         return;
     }
 
+    const characterType = document.getElementById('character_type').value;
+
     // セリフと演出指示をクリア
     document.getElementById('dialogue').value = '';
     document.getElementById('additional_direction').value = '';
+
+    // わんこモードの場合は、シーンと動きもリセット（犬種は維持）
+    if (characterType === 'dog') {
+        // シーンと動きを変更できるように、デフォルト値にリセット
+        // ユーザーが新しいシーン・動きを選択できる
+        showToast('💡 犬種はそのままで、新しいシーン・動きを選択してください', 'info');
+    }
 
     // 動画プロンプトのみ再生成
     showToast('🔄 新しいシーンのプロンプトを生成中...', 'info');
