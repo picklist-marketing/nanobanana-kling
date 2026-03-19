@@ -592,12 +592,192 @@ Vertical 9:16 format optimized for TikTok/social media.""")
     return image_prompt, video_prompt
 
 
+def generate_cat_prompts(form_data):
+    """
+    ニャンコキャラクター用のプロンプトを生成
+    3DCGアニメーション風のかわいい猫キャラクター
+    """
+    # フォームデータ取得
+    cat_breed = form_data.get('cat_breed', 'gray-tabby')
+    cat_scene = form_data.get('cat_scene', 'living-room')
+    cat_action = form_data.get('cat_action', 'staring-camera')
+    dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
+    character_emotion = form_data.get('character_emotion', 'curious and intrigued')
+
+    # 猫種の特徴マッピング
+    breed_details = {
+        'gray-tabby': {
+            'name': 'Gray Tabby',
+            'description': 'gray striped tabby pattern, silver-gray fur with dark stripes, green or amber eyes',
+            'personality': 'playful and curious'
+        },
+        'orange-tabby': {
+            'name': 'Orange Tabby',
+            'description': 'orange-cream colored with darker orange stripes, warm ginger fur, bright amber eyes',
+            'personality': 'friendly and outgoing'
+        },
+        'calico': {
+            'name': 'Calico',
+            'description': 'tri-color pattern with white, orange, and black patches, distinctive colorful coat',
+            'personality': 'independent and spirited'
+        },
+        'black': {
+            'name': 'Black Cat',
+            'description': 'sleek pure black fur, bright yellow or green eyes, elegant silhouette',
+            'personality': 'mysterious and affectionate'
+        },
+        'white': {
+            'name': 'White Cat',
+            'description': 'pure white fluffy fur, blue or heterochromatic eyes, angelic appearance',
+            'personality': 'gentle and calm'
+        },
+        'scottish-fold': {
+            'name': 'Scottish Fold',
+            'description': 'folded ears, round face, soft plush coat, adorable owl-like appearance',
+            'personality': 'sweet and gentle'
+        },
+        'persian': {
+            'name': 'Persian',
+            'description': 'long fluffy coat, flat face, round eyes, luxurious fur',
+            'personality': 'calm and regal'
+        },
+        'ragdoll': {
+            'name': 'Ragdoll',
+            'description': 'blue eyes, color-point pattern, silky semi-long fur, large and fluffy',
+            'personality': 'docile and relaxed'
+        },
+        'siamese': {
+            'name': 'Siamese',
+            'description': 'cream body with dark points on face, ears, paws, and tail, striking blue almond eyes',
+            'personality': 'vocal and social'
+        }
+    }
+
+    # シーン環境マッピング
+    scene_details = {
+        'living-room': 'cozy living room with sofa, warm lighting, comfortable atmosphere',
+        'window-sill': 'sunny window sill with curtains, natural light streaming in, peaceful view outside',
+        'sofa': 'soft comfortable sofa with cushions, cozy blanket, warm ambient lighting',
+        'cardboard-box': 'inside a cardboard box, playful hiding spot, cozy confined space',
+        'cat-tower': 'cat tower with multiple levels, scratching posts, elevated perch',
+        'bed': 'comfortable bed with soft blankets and pillows, relaxing sleeping area',
+        'clouds': 'floating on fluffy white clouds in dreamy pastel sky, magical fantasy atmosphere',
+        'garden': 'beautiful garden with flowers, green grass, butterflies, sunshine',
+        'cafe': 'cozy cafe interior with wooden furniture, warm lighting, peaceful atmosphere'
+    }
+
+    # アクション・表情マッピング
+    action_details = {
+        'staring-camera': 'looking directly at camera with big round eyes, intense curious gaze, slight head tilt, mesmerizing stare',
+        'head-tilt': 'tilting head to one side adorably, ears perked up, curious questioning expression, innocent look',
+        'meowing': 'mouth open in adorable meow, expressive face, communicating vocally, endearing expression',
+        'stretching': 'stretching body with front paws extended forward, back arched, yawning contentedly, relaxed pose',
+        'grooming': 'licking paw and grooming face, tongue out slightly, focused concentration, calm and clean',
+        'playing': 'playing with toy, paws batting playfully, alert and energetic, hunter instincts showing',
+        'sleeping': 'curled up sleeping peacefully, eyes closed, gentle breathing, utterly relaxed and content',
+        'curious': 'ears forward, eyes wide with curiosity, investigating something interesting, alert and engaged',
+        'lazy': 'lounging lazily, half-closed eyes, completely relaxed, content and peaceful expression',
+        'paw-licking': 'licking front paw elegantly, grooming ritual, refined and graceful movement'
+    }
+
+    breed_info = breed_details.get(cat_breed, breed_details['gray-tabby'])
+    scene_env = scene_details.get(cat_scene, scene_details['living-room'])
+    action_desc = action_details.get(cat_action, action_details['staring-camera'])
+
+    # 画像生成プロンプト
+    image_prompt = f"""A cute 3D animated {breed_info['name']} kitten character in Pixar/Disney animation style.
+
+CHARACTER DESIGN:
+- Adorable {breed_info['name']} kitten
+- {breed_info['description']}
+- Oversized expressive eyes with realistic reflections and emotional depth
+- Smooth 3D rendered fur with realistic texture and lighting
+- Cute proportions with slightly enlarged head for maximum cuteness
+- {breed_info['personality']} personality showing in expression
+- {action_desc}
+
+ENVIRONMENT:
+- Photorealistic {scene_env}
+- Cinematic lighting with warm tones
+- Shallow depth of field focusing on the kitten
+- Rich environmental details
+- Professional 3D rendering quality
+
+STYLE:
+- High-quality 3D CGI animation (Pixar/Disney level)
+- Realistic fur simulation and lighting
+- Photorealistic background integrated with stylized character
+- Vertical 9:16 portrait format for social media
+- Warm, heartwarming, adorable mood
+- Professional render quality with ray tracing
+
+The kitten should be irresistibly cute and endearing, capturing the essence of {breed_info['name']} charm.
+
+NO TEXT, NO WORDS, NO LETTERS in the image"""
+
+    # 動画生成プロンプト
+    video_sections = []
+
+    video_sections.append(f"""A 3D animated {breed_info['name']} kitten character in Pixar/Disney style, matching the provided character design.
+
+The kitten is in: {scene_env}""")
+
+    if dialogue:
+        video_sections.append(f"""The adorable {breed_info['name']} kitten expresses itself.
+
+TEXT/SUBTITLE: "{dialogue}"
+
+The kitten's expressions and body language convey the emotion and meaning.""")
+    else:
+        video_sections.append(f"""The {breed_info['name']} kitten communicates through expressive body language and facial expressions.""")
+
+    video_sections.append(f"""CHARACTER ANIMATION:
+{action_desc}
+
+The kitten's movements are fluid and natural:
+- Realistic fur physics and movement
+- Gentle breathing animation
+- Subtle ear movements and whisker twitches
+- Eye blinks and micro-expressions
+- Natural feline grace and balance
+
+Pixar-level character animation with maximum cuteness and appeal.""")
+
+    video_sections.append(f"""ENVIRONMENT & CINEMATOGRAPHY:
+{scene_env}
+
+Photorealistic background with:
+- Cinematic lighting and atmosphere
+- Warm color grading
+- Shallow depth of field keeping focus on the kitten
+- Subtle camera movement (slow push-in or gentle tracking)
+- Professional compositing of 3D character with environment
+
+Vertical 9:16 format optimized for TikTok/social media.""")
+
+    if additional_direction:
+        additional_en = translate_to_english(additional_direction)
+        video_sections.append(f"""ADDITIONAL DIRECTION:
+{additional_en}""")
+
+    video_sections.append(f"""Keywords: cute {breed_info['name']}, 3D animation, Pixar style, adorable kitten, photorealistic environment, heartwarming, kawaii, vertical video, social media optimized, professional CGI""")
+
+    video_prompt = "\n\n".join(video_sections)
+
+    return image_prompt, video_prompt
+
+
 def generate_prompts(form_data):
     """
     Kling公式フォーマットでプロンプトを生成
     キャラクタータイプに応じて適切な関数を呼び出す
     """
     character_type = form_data.get('character_type', 'nanobanana')
+
+    # ニャンコキャラクターの場合
+    if character_type == 'cat':
+        return generate_cat_prompts(form_data)
 
     # わんこキャラクターの場合
     if character_type == 'dog':

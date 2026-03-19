@@ -34,6 +34,11 @@
                 <span class="mode-name">わんこCR</span>
                 <span class="mode-desc">かわいい犬キャラクター</span>
             </button>
+            <button class="mode-tab" data-mode="cat" onclick="switchMode('cat')">
+                <span class="mode-icon">🐱</span>
+                <span class="mode-name">ニャンコCR</span>
+                <span class="mode-desc">かわいい猫キャラクター</span>
+            </button>
         </div>
 
         <div class="main-content">
@@ -108,6 +113,56 @@
                                 <option value="curious">好奇心いっぱいに見つめる</option>
                             </select>
                             <small>犬の動作や表情</small>
+                        </div>
+
+                        <!-- ニャンコモード専用フィールド -->
+                        <div class="form-group" id="cat-breed-group" style="display: none;">
+                            <label for="cat_breed">猫種・柄 *</label>
+                            <select id="cat_breed" name="cat_breed">
+                                <option value="gray-tabby">グレータビー</option>
+                                <option value="orange-tabby">茶トラ</option>
+                                <option value="calico">三毛猫</option>
+                                <option value="black">黒猫</option>
+                                <option value="white">白猫</option>
+                                <option value="scottish-fold">スコティッシュフォールド</option>
+                                <option value="persian">ペルシャ</option>
+                                <option value="ragdoll">ラグドール</option>
+                                <option value="siamese">シャム猫</option>
+                            </select>
+                            <small>生成する猫の種類</small>
+                        </div>
+
+                        <div class="form-group" id="cat-scene-group" style="display: none;">
+                            <label for="cat_scene">シーン・環境 *</label>
+                            <select id="cat_scene" name="cat_scene">
+                                <option value="living-room">リビングルーム</option>
+                                <option value="window-sill">窓辺</option>
+                                <option value="sofa">ソファでくつろぐ</option>
+                                <option value="cardboard-box">段ボール箱</option>
+                                <option value="cat-tower">キャットタワー</option>
+                                <option value="bed">ベッド</option>
+                                <option value="clouds">雲の上（ファンタジー）</option>
+                                <option value="garden">庭</option>
+                                <option value="cafe">カフェ</option>
+                            </select>
+                            <small>猫がいる場所</small>
+                        </div>
+
+                        <div class="form-group" id="cat-action-group" style="display: none;">
+                            <label for="cat_action">表情・動き *</label>
+                            <select id="cat_action" name="cat_action">
+                                <option value="staring-camera">じっと見つめる</option>
+                                <option value="head-tilt">首をかしげる</option>
+                                <option value="meowing">ニャーと鳴く</option>
+                                <option value="stretching">伸びをする</option>
+                                <option value="grooming">毛づくろい</option>
+                                <option value="playing">おもちゃで遊ぶ</option>
+                                <option value="sleeping">寝ている</option>
+                                <option value="curious">好奇心で探索</option>
+                                <option value="lazy">だらけている</option>
+                                <option value="paw-licking">前足を舐める</option>
+                            </select>
+                            <small>猫の動作や表情</small>
                         </div>
 
                         <div class="form-group">
@@ -333,9 +388,35 @@
         const dogBreedGroup = document.getElementById('dog-breed-group');
         const dogSceneGroup = document.getElementById('dog-scene-group');
         const dogActionGroup = document.getElementById('dog-action-group');
+
+        // ニャンコモード専用フィールド
+        const catBreedGroup = document.getElementById('cat-breed-group');
+        const catSceneGroup = document.getElementById('cat-scene-group');
+        const catActionGroup = document.getElementById('cat-action-group');
+
         const dialogueHint = document.getElementById('dialogue-hint');
 
-        if (characterType === 'dog') {
+        if (characterType === 'cat') {
+            // ニャンコモード
+            basicInfoTitle.textContent = '🐱 猫キャラクター設定';
+            productCategoryGroup.style.display = 'none';
+            productCategory.removeAttribute('required');
+            characterSubjectGroup.style.display = 'none';
+            characterSubjectInput.removeAttribute('required');
+
+            // わんこ専用フィールドを非表示
+            dogBreedGroup.style.display = 'none';
+            dogSceneGroup.style.display = 'none';
+            dogActionGroup.style.display = 'none';
+
+            // ニャンコ専用フィールドを表示
+            catBreedGroup.style.display = 'block';
+            catSceneGroup.style.display = 'block';
+            catActionGroup.style.display = 'block';
+
+            document.getElementById('dialogue').placeholder = '例: ねぇ、聞いて！';
+            dialogueHint.textContent = '猫が話すセリフ（任意・日本語OK）';
+        } else if (characterType === 'dog') {
             // わんこモード
             basicInfoTitle.textContent = '🐕 犬キャラクター設定';
             productCategoryGroup.style.display = 'none';
@@ -366,6 +447,11 @@
             dogSceneGroup.style.display = 'none';
             dogActionGroup.style.display = 'none';
 
+            // ニャンコ専用フィールドを非表示
+            catBreedGroup.style.display = 'none';
+            catSceneGroup.style.display = 'none';
+            catActionGroup.style.display = 'none';
+
             document.getElementById('dialogue').placeholder = '例: みんな、もうお前の口臭に気づいてるぞ！';
             dialogueHint.textContent = 'キャラクターが喋るセリフ（日本語または英語、空欄可）';
         } else {
@@ -383,6 +469,11 @@
             dogBreedGroup.style.display = 'none';
             dogSceneGroup.style.display = 'none';
             dogActionGroup.style.display = 'none';
+
+            // ニャンコ専用フィールドを非表示
+            catBreedGroup.style.display = 'none';
+            catSceneGroup.style.display = 'none';
+            catActionGroup.style.display = 'none';
 
             document.getElementById('dialogue').placeholder = '例: みんな、もうお前の口臭に気づいてるぞ！';
             dialogueHint.textContent = 'キャラクターが喋るセリフ（日本語または英語、空欄可）';

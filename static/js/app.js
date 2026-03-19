@@ -76,7 +76,50 @@ function updateSummary(data) {
 
     let html = '';
 
-    if (characterType === 'dog') {
+    if (characterType === 'cat') {
+        // ニャンコCR
+        const catBreedLabels = {
+            'gray-tabby': 'グレータビー',
+            'orange-tabby': '茶トラ',
+            'calico': '三毛猫',
+            'black': '黒猫',
+            'white': '白猫',
+            'scottish-fold': 'スコティッシュフォールド',
+            'persian': 'ペルシャ',
+            'ragdoll': 'ラグドール',
+            'siamese': 'シャム猫'
+        };
+        const catSceneLabels = {
+            'living-room': 'リビングルーム',
+            'window-sill': '窓辺',
+            'sofa': 'ソファでくつろぐ',
+            'cardboard-box': '段ボール箱',
+            'cat-tower': 'キャットタワー',
+            'bed': 'ベッド',
+            'clouds': '雲の上（ファンタジー）',
+            'garden': '庭',
+            'cafe': 'カフェ'
+        };
+        const catActionLabels = {
+            'staring-camera': 'じっと見つめる',
+            'head-tilt': '首をかしげる',
+            'meowing': 'ニャーと鳴く',
+            'stretching': '伸びをする',
+            'grooming': '毛づくろい',
+            'playing': 'おもちゃで遊ぶ',
+            'sleeping': '寝ている',
+            'curious': '好奇心で探索',
+            'lazy': 'だらけている',
+            'paw-licking': '前足を舐める'
+        };
+
+        html = `
+            <div style="margin-bottom: 12px;"><strong>モード:</strong> 🐱 ニャンコCR</div>
+            <div style="margin-bottom: 12px;"><strong>猫種:</strong> ${catBreedLabels[data.cat_breed] || data.cat_breed}</div>
+            <div style="margin-bottom: 12px;"><strong>シーン:</strong> ${catSceneLabels[data.cat_scene] || data.cat_scene}</div>
+            <div style="margin-bottom: 12px;"><strong>動き:</strong> ${catActionLabels[data.cat_action] || data.cat_action}</div>
+        `;
+    } else if (characterType === 'dog') {
         // わんこCR
         const dogBreedLabels = {
             'pomeranian': 'ポメラニアン',
@@ -529,9 +572,9 @@ async function generateImage() {
             // 動画生成ボタンを有効化
             document.getElementById('btn-generate-video').disabled = false;
 
-            // 「続きを作る」ボタンを表示（ライフハッくんとわんこCRモード）
+            // 「続きを作る」ボタンを表示（ライフハッくん、わんこCR、ニャンコCRモード）
             const characterType = document.getElementById('character_type').value;
-            if (characterType === 'nanobanana' || characterType === 'dog') {
+            if (characterType === 'nanobanana' || characterType === 'dog' || characterType === 'cat') {
                 document.getElementById('btn-continue-scene').style.display = 'inline-block';
             } else {
                 document.getElementById('btn-continue-scene').style.display = 'none';
@@ -739,6 +782,9 @@ async function continueWithNewScene() {
         // シーンと動きを変更できるように、デフォルト値にリセット
         // ユーザーが新しいシーン・動きを選択できる
         showToast('💡 犬種はそのままで、新しいシーン・動きを選択してください', 'info');
+    } else if (characterType === 'cat') {
+        // ニャンコモードの場合も同様
+        showToast('💡 猫種はそのままで、新しいシーン・動きを選択してください', 'info');
     }
 
     // 動画プロンプトのみ再生成
