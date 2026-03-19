@@ -29,6 +29,11 @@
                 <span class="mode-name">ガイコツCR</span>
                 <span class="mode-desc">感情表現向けストーリー</span>
             </button>
+            <button class="mode-tab" data-mode="dog" onclick="switchMode('dog')">
+                <span class="mode-icon">🐕</span>
+                <span class="mode-name">わんこCR</span>
+                <span class="mode-desc">かわいい犬キャラクター</span>
+            </button>
         </div>
 
         <div class="main-content">
@@ -58,11 +63,58 @@
                             <small id="character-subject-hint">キャラクターの対象物（日本語OK）</small>
                         </div>
 
+                        <!-- わんこモード専用フィールド -->
+                        <div class="form-group" id="dog-breed-group" style="display: none;">
+                            <label for="dog_breed">犬種 *</label>
+                            <select id="dog_breed" name="dog_breed">
+                                <option value="pomeranian">ポメラニアン</option>
+                                <option value="chihuahua">チワワ</option>
+                                <option value="shiba">柴犬</option>
+                                <option value="toy-poodle">トイプードル</option>
+                                <option value="french-bulldog">フレンチブルドッグ</option>
+                                <option value="corgi">コーギー</option>
+                                <option value="golden-retriever">ゴールデンレトリバー</option>
+                                <option value="dachshund">ダックスフンド</option>
+                            </select>
+                            <small>生成する犬の種類</small>
+                        </div>
+
+                        <div class="form-group" id="dog-scene-group" style="display: none;">
+                            <label for="dog_scene">シーン・環境 *</label>
+                            <select id="dog_scene" name="dog_scene">
+                                <option value="living-room">リビングルーム</option>
+                                <option value="entrance">玄関でお出迎え</option>
+                                <option value="sofa">ソファでくつろぐ</option>
+                                <option value="garden">庭で遊ぶ</option>
+                                <option value="park">公園</option>
+                                <option value="cafe">カフェ</option>
+                                <option value="bedroom">寝室</option>
+                                <option value="window">窓辺</option>
+                            </select>
+                            <small>犬がいる場所</small>
+                        </div>
+
+                        <div class="form-group" id="dog-action-group" style="display: none;">
+                            <label for="dog_action">表情・動き *</label>
+                            <select id="dog_action" name="dog_action">
+                                <option value="smiling-camera">笑顔でカメラ目線</option>
+                                <option value="head-tilt">首をかしげる</option>
+                                <option value="tail-wag">しっぽを振る</option>
+                                <option value="running">走ってくる</option>
+                                <option value="sitting">お座りポーズ</option>
+                                <option value="jumping">ジャンプして喜ぶ</option>
+                                <option value="sleeping">眠そうにする</option>
+                                <option value="playing">おもちゃで遊ぶ</option>
+                                <option value="curious">好奇心いっぱいに見つめる</option>
+                            </select>
+                            <small>犬の動作や表情</small>
+                        </div>
+
                         <div class="form-group">
                             <label for="dialogue">セリフ（任意・日本語OK）</label>
                             <input type="text" id="dialogue" name="dialogue"
                                    placeholder='例: みんな、もうお前の口臭に気づいてるぞ！'>
-                            <small>キャラクターが喋るセリフ（日本語または英語、空欄可）</small>
+                            <small id="dialogue-hint">キャラクターが喋るセリフ（日本語または英語、空欄可）</small>
                         </div>
 
                         <div class="form-group">
@@ -275,23 +327,65 @@
         const characterSubjectInput = document.getElementById('character_subject');
         const characterSubjectHint = document.getElementById('character-subject-hint');
         const basicInfoTitle = document.getElementById('basic-info-title');
+        const characterSubjectGroup = document.querySelector('#character_subject').closest('.form-group');
 
-        if (characterType === 'skeleton') {
+        // わんこモード専用フィールド
+        const dogBreedGroup = document.getElementById('dog-breed-group');
+        const dogSceneGroup = document.getElementById('dog-scene-group');
+        const dogActionGroup = document.getElementById('dog-action-group');
+        const dialogueHint = document.getElementById('dialogue-hint');
+
+        if (characterType === 'dog') {
+            // わんこモード
+            basicInfoTitle.textContent = '🐕 犬キャラクター設定';
+            productCategoryGroup.style.display = 'none';
+            productCategory.removeAttribute('required');
+            characterSubjectGroup.style.display = 'none';
+            characterSubjectInput.removeAttribute('required');
+
+            // わんこ専用フィールドを表示
+            dogBreedGroup.style.display = 'block';
+            dogSceneGroup.style.display = 'block';
+            dogActionGroup.style.display = 'block';
+
+            document.getElementById('dialogue').placeholder = '例: ねぇ僕がふわぁって';
+            dialogueHint.textContent = '犬が話すセリフ（任意・日本語OK）';
+        } else if (characterType === 'skeleton') {
             // ガイコツモード
             basicInfoTitle.textContent = '💀 シーン設定';
             productCategoryGroup.style.display = 'none';
             productCategory.removeAttribute('required');
+            characterSubjectGroup.style.display = 'block';
+            characterSubjectInput.setAttribute('required', 'required');
             characterSubjectLabel.textContent = 'シーン・状況 *';
             characterSubjectInput.placeholder = '例: 暗い会議室で一人、スポットライトの下';
             characterSubjectHint.textContent = 'ガイコツキャラクターが置かれる状況や環境（日本語OK）';
+
+            // わんこ専用フィールドを非表示
+            dogBreedGroup.style.display = 'none';
+            dogSceneGroup.style.display = 'none';
+            dogActionGroup.style.display = 'none';
+
+            document.getElementById('dialogue').placeholder = '例: みんな、もうお前の口臭に気づいてるぞ！';
+            dialogueHint.textContent = 'キャラクターが喋るセリフ（日本語または英語、空欄可）';
         } else {
-            // Nano Bananaモード
+            // ライフハッくんモード
             basicInfoTitle.textContent = '🛍️ 基本情報';
             productCategoryGroup.style.display = 'block';
             productCategory.setAttribute('required', 'required');
+            characterSubjectGroup.style.display = 'block';
+            characterSubjectInput.setAttribute('required', 'required');
             characterSubjectLabel.textContent = '何をキャラにするか *';
             characterSubjectInput.placeholder = '例: 歯垢、毛根、角栓、舌';
             characterSubjectHint.textContent = 'キャラクターの対象物（日本語OK）';
+
+            // わんこ専用フィールドを非表示
+            dogBreedGroup.style.display = 'none';
+            dogSceneGroup.style.display = 'none';
+            dogActionGroup.style.display = 'none';
+
+            document.getElementById('dialogue').placeholder = '例: みんな、もうお前の口臭に気づいてるぞ！';
+            dialogueHint.textContent = 'キャラクターが喋るセリフ（日本語または英語、空欄可）';
         }
     }
     </script>

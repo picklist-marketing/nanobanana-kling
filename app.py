@@ -415,12 +415,193 @@ Vertical 9:16 format.""")
     return image_prompt, video_prompt
 
 
+def generate_dog_prompts(form_data):
+    """
+    わんこキャラクター用のプロンプトを生成
+    3DCGアニメーション風のかわいい犬キャラクター
+    """
+    # フォームデータ取得
+    dog_breed = form_data.get('dog_breed', 'pomeranian')
+    dog_scene = form_data.get('dog_scene', 'living-room')
+    dog_action = form_data.get('dog_action', 'smiling-camera')
+    dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
+    character_emotion = form_data.get('character_emotion', 'happy and grateful')
+
+    # 犬種の特徴マッピング
+    breed_details = {
+        'pomeranian': {
+            'name': 'Pomeranian',
+            'description': 'fluffy orange-cream colored fur, small fox-like face, pointy ears, thick double coat',
+            'size': 'tiny',
+            'personality': 'energetic and playful'
+        },
+        'chihuahua': {
+            'name': 'Chihuahua',
+            'description': 'brown and tan colored, large pointed ears, big expressive eyes, smooth short coat',
+            'size': 'very small',
+            'personality': 'alert and confident'
+        },
+        'shiba': {
+            'name': 'Shiba Inu',
+            'description': 'fox-like appearance, orange-red coat with white markings, curled tail, triangular ears',
+            'size': 'small to medium',
+            'personality': 'bold and spirited'
+        },
+        'toy-poodle': {
+            'name': 'Toy Poodle',
+            'description': 'curly fluffy coat, elegant proportions, round eyes, floppy ears',
+            'size': 'tiny',
+            'personality': 'intelligent and cheerful'
+        },
+        'french-bulldog': {
+            'name': 'French Bulldog',
+            'description': 'bat-like ears, wrinkled face, compact muscular body, short smooth coat',
+            'size': 'small',
+            'personality': 'playful and affectionate'
+        },
+        'corgi': {
+            'name': 'Corgi',
+            'description': 'short legs, long body, fox-like face, large upright ears, fluffy coat',
+            'size': 'small to medium',
+            'personality': 'friendly and outgoing'
+        },
+        'golden-retriever': {
+            'name': 'Golden Retriever',
+            'description': 'golden flowing coat, friendly face, floppy ears, gentle eyes',
+            'size': 'medium to large',
+            'personality': 'friendly and devoted'
+        },
+        'dachshund': {
+            'name': 'Dachshund',
+            'description': 'long body, short legs, long floppy ears, expressive face',
+            'size': 'small',
+            'personality': 'clever and lively'
+        }
+    }
+
+    # シーン環境マッピング
+    scene_details = {
+        'living-room': 'cozy living room with sofa, cushions, warm lighting, plants, and homey atmosphere',
+        'entrance': 'home entrance with door, coat rack, welcome mat, natural light from outside',
+        'sofa': 'comfortable sofa with soft cushions, throw blankets, warm ambient lighting',
+        'garden': 'beautiful garden with green grass, flowers, trees, sunshine',
+        'park': 'sunny park with trees, walking path, benches, blue sky',
+        'cafe': 'cozy cafe interior with wooden tables, warm lighting, peaceful atmosphere',
+        'bedroom': 'comfortable bedroom with bed, pillows, soft lighting, relaxing mood',
+        'window': 'window area with curtains, natural sunlight streaming in, peaceful view'
+    }
+
+    # アクション・表情マッピング
+    action_details = {
+        'smiling-camera': 'looking directly at camera with big happy smile, mouth slightly open showing happiness, tail wagging gently, eyes sparkling with joy',
+        'head-tilt': 'tilting head to one side curiously, ears perked up, eyes wide and curious, adorable questioning expression',
+        'tail-wag': 'wagging tail enthusiastically from side to side, body wiggling with excitement, happy expression',
+        'running': 'running energetically toward camera, legs moving in playful motion, ears bouncing, joyful expression',
+        'sitting': 'sitting in perfect position, chest out proudly, tail curled around body, looking up attentively',
+        'jumping': 'jumping up and down with excitement, all four paws off ground, ears flying up, pure joy on face',
+        'sleeping': 'curled up sleepily, eyes half-closed or gently closing, peaceful relaxed expression, breathing slowly',
+        'playing': 'playing with toy, paws batting playfully, focused concentration mixed with joy, playful movements',
+        'curious': 'staring intently with wide curious eyes, head slightly forward, ears perked, investigating something interesting'
+    }
+
+    breed_info = breed_details.get(dog_breed, breed_details['pomeranian'])
+    scene_env = scene_details.get(dog_scene, scene_details['living-room'])
+    action_desc = action_details.get(dog_action, action_details['smiling-camera'])
+
+    # 画像生成プロンプト
+    image_prompt = f"""A cute 3D animated {breed_info['name']} dog character in Pixar/Disney animation style.
+
+CHARACTER DESIGN:
+- Adorable {breed_info['size']} {breed_info['name']} puppy
+- {breed_info['description']}
+- Oversized expressive eyes with realistic reflections and emotional depth
+- Smooth 3D rendered fur with realistic texture and lighting
+- Cute proportions with slightly enlarged head for kawaii appeal
+- {breed_info['personality']} personality showing in expression
+- {action_desc}
+
+ENVIRONMENT:
+- Photorealistic {scene_env}
+- Cinematic lighting with warm tones
+- Shallow depth of field focusing on the dog
+- Rich environmental details
+- Professional 3D rendering quality
+
+STYLE:
+- High-quality 3D CGI animation (Pixar/Disney level)
+- Realistic fur simulation and lighting
+- Photorealistic background integrated with stylized character
+- Vertical 9:16 portrait format for social media
+- Warm, inviting, heartwarming mood
+- Professional render quality with ray tracing
+
+The dog should be incredibly cute and endearing, capturing the essence of {breed_info['name']} charm.
+
+NO TEXT, NO WORDS, NO LETTERS in the image"""
+
+    # 動画生成プロンプト
+    video_sections = []
+
+    video_sections.append(f"""A 3D animated {breed_info['name']} puppy character in Pixar/Disney style, matching the provided character design.
+
+The puppy is in: {scene_env}""")
+
+    if dialogue:
+        video_sections.append(f"""The adorable {breed_info['name']} puppy speaks with a cute voice.
+
+DIALOGUE: "{dialogue}"
+
+The puppy's mouth moves naturally in sync with the speech, eyes expressing emotion.""")
+    else:
+        video_sections.append(f"""The {breed_info['name']} puppy communicates through expressive body language and facial expressions.""")
+
+    video_sections.append(f"""CHARACTER ANIMATION:
+{action_desc}
+
+The puppy's movements are fluid and natural:
+- Realistic fur physics and movement
+- Breathing animation (chest rising and falling gently)
+- Subtle ear twitches and movements
+- Eye blinks and micro-expressions
+- Natural weight and balance in poses
+
+Pixar-level character animation with appeal and personality.""")
+
+    video_sections.append(f"""ENVIRONMENT & CINEMATOGRAPHY:
+{scene_env}
+
+Photorealistic background with:
+- Cinematic lighting and atmosphere
+- Warm color grading
+- Shallow depth of field keeping focus on the puppy
+- Subtle camera movement (slow push-in or gentle tracking)
+- Professional compositing of 3D character with environment
+
+Vertical 9:16 format optimized for TikTok/social media.""")
+
+    if additional_direction:
+        additional_en = translate_to_english(additional_direction)
+        video_sections.append(f"""ADDITIONAL DIRECTION:
+{additional_en}""")
+
+    video_sections.append(f"""Keywords: cute {breed_info['name']}, 3D animation, Pixar style, adorable puppy, photorealistic environment, heartwarming, kawaii, vertical video, social media optimized, professional CGI""")
+
+    video_prompt = "\n\n".join(video_sections)
+
+    return image_prompt, video_prompt
+
+
 def generate_prompts(form_data):
     """
     Kling公式フォーマットでプロンプトを生成
     キャラクタータイプに応じて適切な関数を呼び出す
     """
     character_type = form_data.get('character_type', 'nanobanana')
+
+    # わんこキャラクターの場合
+    if character_type == 'dog':
+        return generate_dog_prompts(form_data)
 
     # スケルトンキャラクターの場合
     if character_type == 'skeleton':
@@ -819,9 +1000,11 @@ def generate_video_with_veo(prompt, image_path=None, dialogue=None):
         if dialogue:
             print(f"セリフ: {dialogue}")
 
-        # セリフがある場合は音声指示を追加
-        if dialogue:
-            full_prompt = f"{prompt}\n\nThe character speaks in Japanese: \"{dialogue}\"\nGenerate matching lip sync and voice audio."
+        # セリフがある場合は音声指示を追加（ただし、音声なしモードの場合は追加しない）
+        # 音声生成は安全フィルターに引っかかりやすいため、慎重に扱う
+        if dialogue and dialogue.strip():
+            # 音声なしでリップシンクのみ
+            full_prompt = f"{prompt}\n\nText overlay or subtitle: \"{dialogue}\"\nThe character shows expressive reactions and emotions related to this message."
         else:
             full_prompt = prompt
 
@@ -908,6 +1091,13 @@ def generate_video_with_veo(prompt, image_path=None, dialogue=None):
 
         # レスポンス形式1: generateVideoResponse（URI形式）
         if 'generateVideoResponse' in result:
+            # 安全フィルターチェック
+            rai_filtered_count = result['generateVideoResponse'].get('raiMediaFilteredCount', 0)
+            if rai_filtered_count > 0:
+                reasons = result['generateVideoResponse'].get('raiMediaFilteredReasons', [])
+                reason_text = reasons[0] if reasons else '不明な理由'
+                raise Exception(f"動画生成が安全フィルターによりブロックされました。\n理由: {reason_text}\n\nヒント: セリフを削除するか、より穏やかな表現に変更してみてください。")
+
             generated_samples = result['generateVideoResponse'].get('generatedSamples', [])
             if generated_samples and 'video' in generated_samples[0]:
                 video_uri = generated_samples[0]['video'].get('uri')

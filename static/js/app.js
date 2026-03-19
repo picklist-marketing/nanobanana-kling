@@ -76,7 +76,47 @@ function updateSummary(data) {
 
     let html = '';
 
-    if (characterType === 'skeleton') {
+    if (characterType === 'dog') {
+        // わんこCR
+        const dogBreedLabels = {
+            'pomeranian': 'ポメラニアン',
+            'chihuahua': 'チワワ',
+            'shiba': '柴犬',
+            'toy-poodle': 'トイプードル',
+            'french-bulldog': 'フレンチブルドッグ',
+            'corgi': 'コーギー',
+            'golden-retriever': 'ゴールデンレトリバー',
+            'dachshund': 'ダックスフンド'
+        };
+        const dogSceneLabels = {
+            'living-room': 'リビングルーム',
+            'entrance': '玄関でお出迎え',
+            'sofa': 'ソファでくつろぐ',
+            'garden': '庭で遊ぶ',
+            'park': '公園',
+            'cafe': 'カフェ',
+            'bedroom': '寝室',
+            'window': '窓辺'
+        };
+        const dogActionLabels = {
+            'smiling-camera': '笑顔でカメラ目線',
+            'head-tilt': '首をかしげる',
+            'tail-wag': 'しっぽを振る',
+            'running': '走ってくる',
+            'sitting': 'お座りポーズ',
+            'jumping': 'ジャンプして喜ぶ',
+            'sleeping': '眠そうにする',
+            'playing': 'おもちゃで遊ぶ',
+            'curious': '好奇心いっぱいに見つめる'
+        };
+
+        html = `
+            <div style="margin-bottom: 12px;"><strong>モード:</strong> 🐕 わんこCR</div>
+            <div style="margin-bottom: 12px;"><strong>犬種:</strong> ${dogBreedLabels[data.dog_breed] || data.dog_breed}</div>
+            <div style="margin-bottom: 12px;"><strong>シーン:</strong> ${dogSceneLabels[data.dog_scene] || data.dog_scene}</div>
+            <div style="margin-bottom: 12px;"><strong>動き:</strong> ${dogActionLabels[data.dog_action] || data.dog_action}</div>
+        `;
+    } else if (characterType === 'skeleton') {
         // ガイコツCR
         html = `
             <div style="margin-bottom: 12px;"><strong>モード:</strong> 💀 ガイコツCR</div>
@@ -493,6 +533,8 @@ async function generateImage() {
             const characterType = document.getElementById('character_type').value;
             if (characterType === 'nanobanana') {
                 document.getElementById('btn-continue-scene').style.display = 'inline-block';
+            } else {
+                document.getElementById('btn-continue-scene').style.display = 'none';
             }
 
             // 動画リストをリセット
