@@ -768,12 +768,178 @@ Vertical 9:16 format optimized for TikTok/social media.""")
     return image_prompt, video_prompt
 
 
+def generate_nanobanana_object_prompts(form_data):
+    """
+    ライフハッくん（モノ）用のプロンプトを生成
+    日常のモノをキャラクター化
+    """
+    # フォームデータ取得
+    product_category = form_data.get('product_category', '')
+    character_subject = form_data.get('character_subject', '')
+    dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
+    character_emotion = form_data.get('character_emotion', 'panicked and terrified')
+    visual_style = form_data.get('visual_style', 'grotesque comedy, Pixar meets body horror')
+    camera_angle = form_data.get('camera_angle', 'extreme close-up POV from inside')
+
+    # 各フィールドを英語に翻訳
+    character_subject_en = translate_subject_to_english(character_subject)
+    dialogue_en = dialogue if dialogue else ''
+    additional_direction_en = translate_to_english(additional_direction) if additional_direction else ''
+
+    # モノの環境を設定（日常空間）
+    object_environments = {
+        'ペットボトル': 'on a desk or table in daily life setting',
+        'リモコン': 'on a sofa or coffee table in living room',
+        'スマホ': 'on a desk or in hand, modern lifestyle setting',
+        '消しゴム': 'on a study desk with notebooks and pencils',
+        'お菓子': 'on a table or in pantry, snack time setting',
+        'ボールペン': 'on an office desk with papers',
+        '財布': 'on a table or in bag, daily carry setting'
+    }
+
+    # デフォルト環境（日常の机や部屋）
+    environment = object_environments.get(character_subject, 'on a surface in everyday life setting, living space or workspace')
+
+    # Nano Banana プロンプト（モノ版）
+    nano_banana_prompt = f"""An anthropomorphized {character_subject_en} object character - literally a {character_subject_en} transformed into a cute character with a face.
+
+CHARACTER DETAILS:
+- The character IS a {character_subject_en} with cartoon features added
+- Body shape and structure based on actual {character_subject_en} appearance
+- Maintains recognizable {character_subject_en} characteristics and colors
+- Tiny object body with adorable cartoon modifications
+
+FACIAL FEATURES (CRITICAL):
+- HUGE bulging expressive eyes (anime-style, NOT realistic)
+- Wide open mouth showing expression
+- Clear defined facial features with personality
+- Exaggerated {character_emotion} expression
+- NOT a photorealistic object - this is a CHARACTER with emotions
+
+BODY:
+- Small stubby arms and legs added to the {character_subject_en}
+- Arms waving expressively
+- Cute yet expressive appearance
+- Maintains recognizable {character_subject_en} form
+
+ENVIRONMENT:
+- Placed in {environment}
+- Surrounded by realistic everyday objects and furniture
+- {camera_angle} perspective
+- Environment contrasts with stylized cartoon character
+
+STYLE:
+- 3D rendered in {visual_style} style
+- Pixar animation quality character design
+- Photorealistic environment setting
+- Dramatic lighting with everyday life atmosphere
+- Highly detailed, octane render, 8k
+- Vertical portrait orientation, 9:16 aspect ratio
+
+NO TEXT, NO WORDS, NO LETTERS in the image"""
+
+    if additional_direction_en:
+        nano_banana_prompt += f"\n\nADDITIONAL DIRECTION:\n{additional_direction_en}"
+
+    nano_banana_prompt = nano_banana_prompt.strip()
+
+    # Kling プロンプト（構造化フォーマット - モノ版）
+    kling_sections = []
+
+    # Subject
+    kling_sections.append(f"""Subject:
+An anthropomorphized {character_subject_en} object character - literally a {character_subject_en} transformed into a cartoon creature with a face and personality. The character IS a {character_subject_en} with huge bulging eyes, tiny arms and legs added. This is NOT a generic blob but specifically recognizable as a {character_subject_en}. Standing in {environment}.""")
+
+    # Context
+    context_desc = f"The everyday life setting shows a typical environment where {character_subject_en} would normally exist. The atmosphere is relatable and familiar, mixing realistic objects with the cartoon character."
+
+    kling_sections.append(f"""Context:
+{context_desc}""")
+
+    # Action（セリフあり/なし）
+    if dialogue_en:
+        lip_sync = generate_lip_sync(dialogue_en)
+        has_japanese = any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9faf' for c in dialogue_en)
+
+        if has_japanese:
+            kling_sections.append(f"""Action:
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion and speaks in Japanese toward the camera.
+
+DIALOGUE (Japanese audio with perfect lip sync):
+{lip_sync}
+
+Character performance:
+- Mouth movements perfectly synchronized with Japanese phonetics
+- Expression matches the emotional tone of the dialogue
+- Tiny arms gesture dramatically to emphasize the words
+- Body language reinforces the meaning and emotion
+- Perfect timing between audio and lip movements""")
+        else:
+            kling_sections.append(f"""Action:
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
+
+"{dialogue_en}"
+
+Lip sync animation:
+{lip_sync}
+
+The character gestures dramatically with tiny arms while speaking.""")
+    else:
+        kling_sections.append(f"""Action:
+The {character_subject_en} character shows {character_emotion} emotion through exaggerated body language.
+
+Animation:
+- HUGE EYES widening dramatically
+- Mouth opening wider in exaggerated expression
+- Clear defined facial features with personality
+- Small arms and legs flailing expressively
+- Body wobbles in rubber-hose cartoon style""")
+
+    # Style
+    style_desc = "Pixar-style 3D animation"
+    if "grotesque" in visual_style:
+        style_desc += ", exaggerated cartoon acting, expressive facial animation, comedic humor"
+    elif "cute" in visual_style:
+        style_desc += ", cute character design, friendly animation, warm colors"
+
+    kling_sections.append(f"""Style:
+{style_desc}.""")
+
+    # Camera Movement
+    kling_sections.append(f"""Camera Movement:
+Dynamic camera movement, slight zoom emphasizing character's reaction, smooth cinematic movement.""")
+
+    # Composition
+    kling_sections.append(f"""Composition:
+Vertical 9:16 format (portrait orientation).
+The {character_subject_en} character in everyday environment, surrounded by realistic objects.""")
+
+    # Ambiance & Effects
+    kling_sections.append(f"""Ambiance & Effects:
+- Natural lighting from everyday environment
+- Realistic object textures in background
+- Contrast between cartoon character and photorealistic setting""")
+
+    if additional_direction_en:
+        kling_sections.append(f"""Additional Direction:
+{additional_direction_en}""")
+
+    kling_prompt = "\n\n".join(kling_sections)
+
+    return nano_banana_prompt, kling_prompt.strip()
+
+
 def generate_prompts(form_data):
     """
     Kling公式フォーマットでプロンプトを生成
     キャラクタータイプに応じて適切な関数を呼び出す
     """
-    character_type = form_data.get('character_type', 'nanobanana')
+    character_type = form_data.get('character_type', 'nanobanana-body')
+
+    # ライフハッくん（モノ）の場合
+    if character_type == 'nanobanana-object':
+        return generate_nanobanana_object_prompts(form_data)
 
     # ニャンコキャラクターの場合
     if character_type == 'cat':

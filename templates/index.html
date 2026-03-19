@@ -19,10 +19,15 @@
 
         <!-- モード切り替えタブ -->
         <div class="mode-selector">
-            <button class="mode-tab active" data-mode="nanobanana" onclick="switchMode('nanobanana')">
-                <span class="mode-icon">🍌</span>
-                <span class="mode-name">ライフハッくん</span>
-                <span class="mode-desc">商材PR向けキャラクター</span>
+            <button class="mode-tab active" data-mode="nanobanana-body" onclick="switchMode('nanobanana-body')">
+                <span class="mode-icon">🦷</span>
+                <span class="mode-name">ライフハッくん（部位）</span>
+                <span class="mode-desc">体の部位キャラクター</span>
+            </button>
+            <button class="mode-tab" data-mode="nanobanana-object" onclick="switchMode('nanobanana-object')">
+                <span class="mode-icon">📦</span>
+                <span class="mode-name">ライフハッくん（モノ）</span>
+                <span class="mode-desc">日常のモノキャラクター</span>
             </button>
             <button class="mode-tab" data-mode="skeleton" onclick="switchMode('skeleton')">
                 <span class="mode-icon">💀</span>
@@ -48,7 +53,7 @@
 
                 <form id="prompt-form">
                     <!-- 隠しフィールド: キャラクタータイプ -->
-                    <input type="hidden" id="character_type" name="character_type" value="nanobanana">
+                    <input type="hidden" id="character_type" name="character_type" value="nanobanana-body">
 
                     <!-- 基本情報 -->
                     <div class="form-section">
@@ -454,8 +459,29 @@
 
             document.getElementById('dialogue').placeholder = '例: みんな、もうお前の口臭に気づいてるぞ！';
             dialogueHint.textContent = 'キャラクターが喋るセリフ（日本語または英語、空欄可）';
+        } else if (characterType === 'nanobanana-object') {
+            // ライフハッくん（モノ）モード
+            basicInfoTitle.textContent = '📦 基本情報';
+            productCategoryGroup.style.display = 'block';
+            productCategory.setAttribute('required', 'required');
+            characterSubjectGroup.style.display = 'block';
+            characterSubjectInput.setAttribute('required', 'required');
+            characterSubjectLabel.textContent = '何をキャラにするか *';
+            characterSubjectInput.placeholder = '例: ペットボトル、消しゴム、リモコン、スマホ';
+            characterSubjectHint.textContent = '日常のモノ（日本語OK）';
+
+            // 専用フィールドを非表示
+            dogBreedGroup.style.display = 'none';
+            dogSceneGroup.style.display = 'none';
+            dogActionGroup.style.display = 'none';
+            catBreedGroup.style.display = 'none';
+            catSceneGroup.style.display = 'none';
+            catActionGroup.style.display = 'none';
+
+            document.getElementById('dialogue').placeholder = '例: 僕、もう空っぽだよ...';
+            dialogueHint.textContent = 'モノが喋るセリフ（日本語または英語、空欄可）';
         } else {
-            // ライフハッくんモード
+            // ライフハッくん（部位）モード
             basicInfoTitle.textContent = '🛍️ 基本情報';
             productCategoryGroup.style.display = 'block';
             productCategory.setAttribute('required', 'required');
@@ -463,14 +489,12 @@
             characterSubjectInput.setAttribute('required', 'required');
             characterSubjectLabel.textContent = '何をキャラにするか *';
             characterSubjectInput.placeholder = '例: 歯垢、毛根、角栓、舌';
-            characterSubjectHint.textContent = 'キャラクターの対象物（日本語OK）';
+            characterSubjectHint.textContent = '体の部位（日本語OK）';
 
-            // わんこ専用フィールドを非表示
+            // 専用フィールドを非表示
             dogBreedGroup.style.display = 'none';
             dogSceneGroup.style.display = 'none';
             dogActionGroup.style.display = 'none';
-
-            // ニャンコ専用フィールドを非表示
             catBreedGroup.style.display = 'none';
             catSceneGroup.style.display = 'none';
             catActionGroup.style.display = 'none';

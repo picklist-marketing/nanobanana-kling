@@ -165,10 +165,17 @@ function updateSummary(data) {
             <div style="margin-bottom: 12px;"><strong>モード:</strong> 💀 ガイコツCR</div>
             <div style="margin-bottom: 12px;"><strong>シーン:</strong> ${data.character_subject}</div>
         `;
-    } else {
-        // ライフハッくん
+    } else if (characterType === 'nanobanana-object') {
+        // ライフハッくん（モノ）
         html = `
-            <div style="margin-bottom: 12px;"><strong>モード:</strong> 🍌 ライフハッくん</div>
+            <div style="margin-bottom: 12px;"><strong>モード:</strong> 📦 ライフハッくん（モノ）</div>
+            <div style="margin-bottom: 12px;"><strong>用途:</strong> ${data.product_category}</div>
+            <div style="margin-bottom: 12px;"><strong>対象:</strong> ${data.character_subject}</div>
+        `;
+    } else {
+        // ライフハッくん（部位）
+        html = `
+            <div style="margin-bottom: 12px;"><strong>モード:</strong> 🦷 ライフハッくん（部位）</div>
             <div style="margin-bottom: 12px;"><strong>商材:</strong> ${data.product_category}</div>
             <div style="margin-bottom: 12px;"><strong>対象:</strong> ${data.character_subject}</div>
         `;
@@ -574,7 +581,7 @@ async function generateImage() {
 
             // 「続きを作る」ボタンを表示（ライフハッくん、わんこCR、ニャンコCRモード）
             const characterType = document.getElementById('character_type').value;
-            if (characterType === 'nanobanana' || characterType === 'dog' || characterType === 'cat') {
+            if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'dog' || characterType === 'cat') {
                 document.getElementById('btn-continue-scene').style.display = 'inline-block';
             } else {
                 document.getElementById('btn-continue-scene').style.display = 'none';
