@@ -29,7 +29,7 @@ function loadGallery() {
 
     // 生成された画像・動画のみをフィルタリング
     const generatedItems = history.filter(item =>
-        item.generatedImage || item.generatedVideo
+        item.generatedImage || item.generatedVideo || (item.generatedVideos && item.generatedVideos.length > 0)
     );
 
     if (generatedItems.length === 0) {
@@ -57,14 +57,32 @@ function createGalleryCard(item, index) {
     card.className = 'gallery-item';
 
     // 動画があれば動画を優先、なければ画像
-    const hasVideo = item.generatedVideo;
+    const hasVideos = item.generatedVideos && item.generatedVideos.length > 0;
+    const hasVideo = hasVideos || item.generatedVideo;
     const hasImage = item.generatedImage;
-    const mediaUrl = hasVideo ? item.generatedVideo : item.generatedImage;
+
+    // 複数動画がある場合は最初の動画、なければ単一動画、最後に画像
+    let mediaUrl;
+    if (hasVideos) {
+        mediaUrl = item.generatedVideos[0].url;
+    } else if (item.generatedVideo) {
+        mediaUrl = item.generatedVideo;
+    } else {
+        mediaUrl = item.generatedImage;
+    }
     const mediaType = hasVideo ? 'video' : 'image';
+
+    // 複数シーンのバッジ
+    const sceneCount = hasVideos ? item.generatedVideos.length : 0;
+    const sceneBadge = sceneCount > 1 ? `<div class="scene-badge">${sceneCount}シーン</div>` : '';
 
     let mediaHtml = '';
     if (mediaType === 'video') {
-        mediaHtml = `<video class="gallery-item-media" src="${mediaUrl}" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>`;
+        mediaHtml = `
+            <div class="gallery-item-media-wrapper">
+                <video class="gallery-item-media" src="${mediaUrl}" muted loop onmouseover="this.play()" onmouseout="this.pause()"></video>
+                ${sceneBadge}
+            </div>`;
     } else {
         mediaHtml = `<img class="gallery-item-media" src="${mediaUrl}" alt="Generated">`;
     }
@@ -106,7 +124,7 @@ function createGalleryCard(item, index) {
 function viewItem(index) {
     const history = JSON.parse(localStorage.getItem('prompt-history') || '[]');
     const generatedItems = history.filter(item =>
-        item.generatedImage || item.generatedVideo
+        item.generatedImage || item.generatedVideo || (item.generatedVideos && item.generatedVideos.length > 0)
     );
 
     const item = generatedItems[index];
@@ -115,15 +133,30 @@ function viewItem(index) {
     const modal = document.getElementById('modal');
     const modalBody = document.getElementById('modal-body');
 
-    const hasVideo = item.generatedVideo;
-    const mediaUrl = hasVideo ? item.generatedVideo : item.generatedImage;
+    const hasVideos = item.generatedVideos && item.generatedVideos.length > 0;
+    const hasVideo = hasVideos || item.generatedVideo;
     const mediaType = hasVideo ? 'video' : 'image';
 
     let mediaHtml = '';
     if (mediaType === 'video') {
-        mediaHtml = `<video class="modal-media" src="${mediaUrl}" controls autoplay loop></video>`;
+        if (hasVideos) {
+            // 複数動画がある場合、すべてのシーンを表示
+            mediaHtml = '<div class="modal-videos">';
+            item.generatedVideos.forEach((videoItem, idx) => {
+                mediaHtml += `
+                    <div class="modal-video-item">
+                        <h4>🎬 シーン ${idx + 1}</h4>
+                        <video class="modal-media" src="${videoItem.url}" controls ${idx === 0 ? 'autoplay' : ''} loop></video>
+                    </div>
+                `;
+            });
+            mediaHtml += '</div>';
+        } else {
+            // 単一動画（後方互換性）
+            mediaHtml = `<video class="modal-media" src="${item.generatedVideo}" controls autoplay loop></video>`;
+        }
     } else {
-        mediaHtml = `<img class="modal-media" src="${mediaUrl}" alt="Generated">`;
+        mediaHtml = `<img class="modal-media" src="${item.generatedImage}" alt="Generated">`;
     }
 
     modalBody.innerHTML = `

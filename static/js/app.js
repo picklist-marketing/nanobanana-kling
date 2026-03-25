@@ -363,6 +363,15 @@ function updateHistoryWithGeneratedMedia(type, url) {
         if (type === 'image') {
             latestEntry.generatedImage = url;
         } else if (type === 'video') {
+            // 複数シーン対応：動画URLを配列として保存
+            if (!latestEntry.generatedVideos) {
+                latestEntry.generatedVideos = [];
+            }
+            latestEntry.generatedVideos.push({
+                url: url,
+                timestamp: new Date().toISOString()
+            });
+            // 後方互換性のため、最新の動画をgeneratedVideoにも保存
             latestEntry.generatedVideo = url;
         }
 
