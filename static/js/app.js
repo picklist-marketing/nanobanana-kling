@@ -579,9 +579,9 @@ async function generateImage() {
             // 動画生成ボタンを有効化
             document.getElementById('btn-generate-video').disabled = false;
 
-            // 「続きを作る」ボタンを表示（ライフハッくん、わんこCR、ニャンコCRモード）
+            // 「続きを作る」ボタンを表示（全モード対応）
             const characterType = document.getElementById('character_type').value;
-            if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'dog' || characterType === 'cat') {
+            if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'skeleton' || characterType === 'dog' || characterType === 'cat') {
                 document.getElementById('btn-continue-scene').style.display = 'inline-block';
             } else {
                 document.getElementById('btn-continue-scene').style.display = 'none';
@@ -792,6 +792,9 @@ async function continueWithNewScene() {
     } else if (characterType === 'cat') {
         // ニャンコモードの場合も同様
         showToast('💡 猫種はそのままで、新しいシーン・動きを選択してください', 'info');
+    } else if (characterType === 'skeleton') {
+        // ガイコツモードの場合
+        showToast('💡 同じガイコツで、新しい感情・セリフを入力してください', 'info');
     }
 
     // 動画プロンプトのみ再生成
