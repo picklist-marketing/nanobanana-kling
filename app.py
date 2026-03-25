@@ -365,11 +365,10 @@ The character is in: {scene_setting}""")
 
     # 現在の状態とアクション
     if dialogue:
-        video_sections.append(f"""The character is experiencing {character_emotion} emotion and speaks with intense feeling.
+        video_sections.append(f"""The character is experiencing {character_emotion} emotion and expresses: "{dialogue}"
 
-DIALOGUE: "{dialogue}"
-
-The character's voice matches the emotional intensity.""")
+The character's expressions and body language powerfully convey this emotion.
+NO text overlays or subtitles should appear in the video.""")
     else:
         video_sections.append(f"""The character is experiencing {character_emotion} emotion through powerful body language.""")
 
@@ -548,11 +547,10 @@ NO TEXT, NO WORDS, NO LETTERS in the image"""
 The puppy is in: {scene_env}""")
 
     if dialogue:
-        video_sections.append(f"""The adorable {breed_info['name']} puppy speaks with a cute voice.
+        video_sections.append(f"""The adorable {breed_info['name']} puppy expresses the emotion: "{dialogue}"
 
-DIALOGUE: "{dialogue}"
-
-The puppy's mouth moves naturally in sync with the speech, eyes expressing emotion.""")
+The puppy's expressions and body language convey this feeling through movements, facial expressions, and gestures.
+NO text overlays or subtitles should appear in the video.""")
     else:
         video_sections.append(f"""The {breed_info['name']} puppy communicates through expressive body language and facial expressions.""")
 
@@ -724,11 +722,10 @@ NO TEXT, NO WORDS, NO LETTERS in the image"""
 The kitten is in: {scene_env}""")
 
     if dialogue:
-        video_sections.append(f"""The adorable {breed_info['name']} kitten expresses itself.
+        video_sections.append(f"""The adorable {breed_info['name']} kitten expresses the emotion: "{dialogue}"
 
-TEXT/SUBTITLE: "{dialogue}"
-
-The kitten's expressions and body language convey the emotion and meaning.""")
+The kitten's expressions and body language convey this feeling through movements, facial expressions, and gestures.
+NO text overlays or subtitles should appear in the video.""")
     else:
         video_sections.append(f"""The {breed_info['name']} kitten communicates through expressive body language and facial expressions.""")
 
@@ -864,27 +861,23 @@ An anthropomorphized {character_subject_en} object character - literally a {char
 
         if has_japanese:
             kling_sections.append(f"""Action:
-The {character_subject_en} character suddenly reacts with {character_emotion} emotion and speaks in Japanese toward the camera.
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
 
-DIALOGUE (Japanese audio with perfect lip sync):
-{lip_sync}
+The character expresses: {lip_sync}
 
 Character performance:
-- Mouth movements perfectly synchronized with Japanese phonetics
-- Expression matches the emotional tone of the dialogue
-- Tiny arms gesture dramatically to emphasize the words
-- Body language reinforces the meaning and emotion
-- Perfect timing between audio and lip movements""")
+- Expression matches the emotional tone
+- Tiny arms gesture dramatically to emphasize the emotion
+- Body language reinforces the meaning and feeling
+- NO text overlays, NO subtitles, NO words should appear in the video""")
         else:
             kling_sections.append(f"""Action:
-The {character_subject_en} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
 
-"{dialogue_en}"
+The character expresses: {lip_sync}
 
-Lip sync animation:
-{lip_sync}
-
-The character gestures dramatically with tiny arms while speaking.""")
+The character gestures dramatically with tiny arms.
+NO text overlays, NO subtitles, NO words should appear in the video.""")
     else:
         kling_sections.append(f"""Action:
 The {character_subject_en} character shows {character_emotion} emotion through exaggerated body language.
@@ -1050,42 +1043,37 @@ An anthropomorphized {character_subject_en} character - literally a {character_s
         if has_japanese:
             # 日本語セリフの場合
             kling_sections.append(f"""Action:
-The {character_subject_en} character suddenly reacts with {character_emotion} emotion and speaks in Japanese toward the camera.
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
 
-DIALOGUE (Japanese audio with perfect lip sync):
-{lip_sync}
+The character expresses: {lip_sync}
 
 Character performance:
-- Mouth movements perfectly synchronized with Japanese phonetics
-- Clear articulation of vowel sounds (あ・い・う・え・お shapes)
-- Expression matches the emotional tone of the dialogue
-- Tiny arms gesture dramatically to emphasize the words
-- Body language reinforces the meaning and emotion
+- Expression matches the emotional tone
+- Tiny arms gesture dramatically to emphasize the emotion
+- Body language reinforces the meaning and feeling
 
 Animation details:
 - Eyes vibrate and bulge dramatically to show emotion
-- Body wobbles in rubber-hose cartoon style while speaking
-- Surrounding biological elements (saliva/moisture) react to the shouting
+- Body wobbles in rubber-hose cartoon style
+- Surrounding biological elements (saliva/moisture) react to the emotion
 - Character leans forward with intensity
-- Facial expressions change naturally throughout the dialogue
-- Perfect timing between audio and lip movements""")
+- Facial expressions change naturally
+- NO text overlays, NO subtitles, NO words should appear in the video""")
         else:
             # 英語セリフの場合
             kling_sections.append(f"""Action:
-The {character_subject_en} character suddenly reacts with {character_emotion} emotion and shouts toward the camera:
+The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
 
-"{dialogue_en}"
+The character expresses: {lip_sync}
 
-Lip sync animation:
-{lip_sync}
-
-The character gestures dramatically with tiny arms while speaking.
+The character gestures dramatically with tiny arms.
 
 Comedic animation:
 - Eyes vibrate and bulge dramatically
 - Body wobbles in rubber-hose cartoon style
-- Surrounding biological elements (saliva/moisture) stretch and shake as character shouts
-- Character leans forward aggressively while yelling""")
+- Surrounding biological elements (saliva/moisture) stretch and shake
+- Character leans forward with intensity
+- NO text overlays, NO subtitles, NO words should appear in the video""")
     else:
         # セリフなしの場合
         kling_sections.append(f"""Action:
@@ -1346,13 +1334,9 @@ def generate_video_with_veo(prompt, image_path=None, dialogue=None):
         if dialogue:
             print(f"セリフ: {dialogue}")
 
-        # セリフがある場合は音声指示を追加（ただし、音声なしモードの場合は追加しない）
-        # 音声生成は安全フィルターに引っかかりやすいため、慎重に扱う
-        if dialogue and dialogue.strip():
-            # 音声なしでリップシンクのみ
-            full_prompt = f"{prompt}\n\nText overlay or subtitle: \"{dialogue}\"\nThe character shows expressive reactions and emotions related to this message."
-        else:
-            full_prompt = prompt
+        # セリフがある場合でもテロップは表示しない
+        # キャラクターの表情とボディランゲージのみで表現
+        full_prompt = prompt
 
         # Google AI REST APIエンドポイント（Veo 3.1 Fast）
         url = f"https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:predictLongRunning?key={GOOGLE_API_KEY}"
