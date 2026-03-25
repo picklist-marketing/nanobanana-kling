@@ -363,6 +363,14 @@ NO TEXT, NO WORDS, NO LETTERS in the image"""
 
 The character is in: {scene_setting}""")
 
+    # 追加演出指示を最優先で配置
+    if additional_direction:
+        additional_en = translate_to_english(additional_direction)
+        video_sections.append(f"""🔴 CRITICAL REQUIREMENT - MUST IMPLEMENT THIS EXACTLY:
+{additional_en}
+
+This direction is the HIGHEST PRIORITY and must be clearly visible throughout the entire animation.""")
+
     # 現在の状態とアクション
     if dialogue:
         video_sections.append(f"""The character is experiencing {character_emotion} emotion and expresses: "{dialogue}"
@@ -373,7 +381,7 @@ NO text overlays or subtitles should appear in the video.""")
         video_sections.append(f"""The character is experiencing {character_emotion} emotion through powerful body language.""")
 
     # 詳細な姿勢とボディランゲージ
-    video_sections.append(f"""POSTURE & BODY LANGUAGE:
+    body_language_text = f"""POSTURE & BODY LANGUAGE:
 {action_details['posture']}
 
 MOVEMENT DETAILS:
@@ -381,7 +389,13 @@ MOVEMENT DETAILS:
 
 FACIAL EXPRESSION:
 {action_details['eyes']}
-The long tongue hangs downward, swaying with breath and emotion.""")
+The long tongue hangs downward, swaying with breath and emotion."""
+
+    # 追加演出指示がある場合は統合
+    if additional_direction:
+        body_language_text += f"\n\n⚠️ CRITICAL: All movements must incorporate: {translate_to_english(additional_direction)}"
+
+    video_sections.append(body_language_text)
 
     # 環境の詳細
     scene_description = translate_to_english(scene_setting) if scene_setting else "dramatic environment"
@@ -398,12 +412,6 @@ Strong readable posing and clear storytelling.
 Camera slowly pushes in, focusing on the character's emotional state.
 Lighting emphasizes the drama and mood.
 Vertical 9:16 format.""")
-
-    # 追加の演出指示
-    if additional_direction:
-        additional_en = translate_to_english(additional_direction)
-        video_sections.append(f"""ADDITIONAL DIRECTION:
-{additional_en}""")
 
     # キーワード
     emotion_keywords = character_emotion.replace(' and ', ', ')
@@ -546,6 +554,14 @@ NO TEXT, NO WORDS, NO LETTERS in the image"""
 
 The puppy is in: {scene_env}""")
 
+    # 追加演出指示を最優先で配置
+    if additional_direction:
+        additional_en = translate_to_english(additional_direction)
+        video_sections.append(f"""🔴 CRITICAL REQUIREMENT - MUST IMPLEMENT THIS EXACTLY:
+{additional_en}
+
+This direction is the HIGHEST PRIORITY and must be clearly visible throughout the entire animation.""")
+
     if dialogue:
         video_sections.append(f"""The adorable {breed_info['name']} puppy expresses the emotion: "{dialogue}"
 
@@ -554,7 +570,7 @@ NO text overlays or subtitles should appear in the video.""")
     else:
         video_sections.append(f"""The {breed_info['name']} puppy communicates through expressive body language and facial expressions.""")
 
-    video_sections.append(f"""CHARACTER ANIMATION:
+    animation_text = f"""CHARACTER ANIMATION:
 {action_desc}
 
 The puppy's movements are fluid and natural:
@@ -564,7 +580,13 @@ The puppy's movements are fluid and natural:
 - Eye blinks and micro-expressions
 - Natural weight and balance in poses
 
-Pixar-level character animation with appeal and personality.""")
+Pixar-level character animation with appeal and personality."""
+
+    # 追加演出指示がある場合は統合
+    if additional_direction:
+        animation_text += f"\n\n⚠️ CRITICAL: All animations must incorporate: {translate_to_english(additional_direction)}"
+
+    video_sections.append(animation_text)
 
     video_sections.append(f"""ENVIRONMENT & CINEMATOGRAPHY:
 {scene_env}
@@ -577,11 +599,6 @@ Photorealistic background with:
 - Professional compositing of 3D character with environment
 
 Vertical 9:16 format optimized for TikTok/social media.""")
-
-    if additional_direction:
-        additional_en = translate_to_english(additional_direction)
-        video_sections.append(f"""ADDITIONAL DIRECTION:
-{additional_en}""")
 
     video_sections.append(f"""Keywords: cute {breed_info['name']}, 3D animation, Pixar style, adorable puppy, photorealistic environment, heartwarming, kawaii, vertical video, social media optimized, professional CGI""")
 
@@ -721,6 +738,14 @@ NO TEXT, NO WORDS, NO LETTERS in the image"""
 
 The kitten is in: {scene_env}""")
 
+    # 追加演出指示を最優先で配置
+    if additional_direction:
+        additional_en = translate_to_english(additional_direction)
+        video_sections.append(f"""🔴 CRITICAL REQUIREMENT - MUST IMPLEMENT THIS EXACTLY:
+{additional_en}
+
+This direction is the HIGHEST PRIORITY and must be clearly visible throughout the entire animation.""")
+
     if dialogue:
         video_sections.append(f"""The adorable {breed_info['name']} kitten expresses the emotion: "{dialogue}"
 
@@ -729,7 +754,7 @@ NO text overlays or subtitles should appear in the video.""")
     else:
         video_sections.append(f"""The {breed_info['name']} kitten communicates through expressive body language and facial expressions.""")
 
-    video_sections.append(f"""CHARACTER ANIMATION:
+    animation_text = f"""CHARACTER ANIMATION:
 {action_desc}
 
 The kitten's movements are fluid and natural:
@@ -739,7 +764,13 @@ The kitten's movements are fluid and natural:
 - Eye blinks and micro-expressions
 - Natural feline grace and balance
 
-Pixar-level character animation with maximum cuteness and appeal.""")
+Pixar-level character animation with maximum cuteness and appeal."""
+
+    # 追加演出指示がある場合は統合
+    if additional_direction:
+        animation_text += f"\n\n⚠️ CRITICAL: All animations must incorporate: {translate_to_english(additional_direction)}"
+
+    video_sections.append(animation_text)
 
     video_sections.append(f"""ENVIRONMENT & CINEMATOGRAPHY:
 {scene_env}
@@ -752,11 +783,6 @@ Photorealistic background with:
 - Professional compositing of 3D character with environment
 
 Vertical 9:16 format optimized for TikTok/social media.""")
-
-    if additional_direction:
-        additional_en = translate_to_english(additional_direction)
-        video_sections.append(f"""ADDITIONAL DIRECTION:
-{additional_en}""")
 
     video_sections.append(f"""Keywords: cute {breed_info['name']}, 3D animation, Pixar style, adorable kitten, photorealistic environment, heartwarming, kawaii, vertical video, social media optimized, professional CGI""")
 
@@ -854,13 +880,19 @@ An anthropomorphized {character_subject_en} object character - literally a {char
     kling_sections.append(f"""Context:
 {context_desc}""")
 
+    # 追加演出指示を最優先で配置
+    if additional_direction_en:
+        kling_sections.append(f"""🔴 CRITICAL REQUIREMENT - MUST IMPLEMENT THIS EXACTLY:
+{additional_direction_en}
+
+This direction is the HIGHEST PRIORITY and must be clearly visible throughout the entire animation.""")
+
     # Action（セリフあり/なし）
     if dialogue_en:
         lip_sync = generate_lip_sync(dialogue_en)
         has_japanese = any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9faf' for c in dialogue_en)
 
-        if has_japanese:
-            kling_sections.append(f"""Action:
+        action_text = f"""Action:
 The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
 
 The character expresses: {lip_sync}
@@ -869,17 +901,14 @@ Character performance:
 - Expression matches the emotional tone
 - Tiny arms gesture dramatically to emphasize the emotion
 - Body language reinforces the meaning and feeling
-- NO text overlays, NO subtitles, NO words should appear in the video""")
-        else:
-            kling_sections.append(f"""Action:
-The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
+- NO text overlays, NO subtitles, NO words should appear in the video"""
 
-The character expresses: {lip_sync}
+        if additional_direction_en:
+            action_text += f"\n\n⚠️ CRITICAL: All actions must incorporate: {additional_direction_en}"
 
-The character gestures dramatically with tiny arms.
-NO text overlays, NO subtitles, NO words should appear in the video.""")
+        kling_sections.append(action_text)
     else:
-        kling_sections.append(f"""Action:
+        action_text = f"""Action:
 The {character_subject_en} character shows {character_emotion} emotion through exaggerated body language.
 
 Animation:
@@ -887,7 +916,12 @@ Animation:
 - Mouth opening wider in exaggerated expression
 - Clear defined facial features with personality
 - Small arms and legs flailing expressively
-- Body wobbles in rubber-hose cartoon style""")
+- Body wobbles in rubber-hose cartoon style"""
+
+        if additional_direction_en:
+            action_text += f"\n\n⚠️ CRITICAL: All actions must incorporate: {additional_direction_en}"
+
+        kling_sections.append(action_text)
 
     # Style
     style_desc = "Pixar-style 3D animation"
@@ -913,10 +947,6 @@ The {character_subject_en} character in everyday environment, surrounded by real
 - Natural lighting from everyday environment
 - Realistic object textures in background
 - Contrast between cartoon character and photorealistic setting""")
-
-    if additional_direction_en:
-        kling_sections.append(f"""Additional Direction:
-{additional_direction_en}""")
 
     kling_prompt = "\n\n".join(kling_sections)
 
@@ -1032,6 +1062,13 @@ An anthropomorphized {character_subject_en} character - literally a {character_s
     kling_sections.append(f"""Context:
 {context_desc}""")
 
+    # 追加演出指示を最優先で配置
+    if additional_direction_en:
+        kling_sections.append(f"""🔴 CRITICAL REQUIREMENT - MUST IMPLEMENT THIS EXACTLY:
+{additional_direction_en}
+
+This direction is the HIGHEST PRIORITY and must be clearly visible throughout the entire animation.""")
+
     # Action（セリフあり/なし）
     if dialogue_en:
         # セリフありの場合
@@ -1040,9 +1077,7 @@ An anthropomorphized {character_subject_en} character - literally a {character_s
         # 日本語かどうかをチェック
         has_japanese = any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9faf' for c in dialogue_en)
 
-        if has_japanese:
-            # 日本語セリフの場合
-            kling_sections.append(f"""Action:
+        action_text = f"""Action:
 The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
 
 The character expresses: {lip_sync}
@@ -1058,25 +1093,15 @@ Animation details:
 - Surrounding biological elements (saliva/moisture) react to the emotion
 - Character leans forward with intensity
 - Facial expressions change naturally
-- NO text overlays, NO subtitles, NO words should appear in the video""")
-        else:
-            # 英語セリフの場合
-            kling_sections.append(f"""Action:
-The {character_subject_en} character suddenly reacts with {character_emotion} emotion toward the camera.
+- NO text overlays, NO subtitles, NO words should appear in the video"""
 
-The character expresses: {lip_sync}
+        if additional_direction_en:
+            action_text += f"\n\n⚠️ CRITICAL: All actions must incorporate: {additional_direction_en}"
 
-The character gestures dramatically with tiny arms.
-
-Comedic animation:
-- Eyes vibrate and bulge dramatically
-- Body wobbles in rubber-hose cartoon style
-- Surrounding biological elements (saliva/moisture) stretch and shake
-- Character leans forward with intensity
-- NO text overlays, NO subtitles, NO words should appear in the video""")
+        kling_sections.append(action_text)
     else:
         # セリフなしの場合
-        kling_sections.append(f"""Action:
+        action_text = f"""Action:
 The {character_subject_en} character shows {character_emotion} emotion through exaggerated body language.
 
 Animation:
@@ -1090,7 +1115,12 @@ Comedic animation:
 - Eyes vibrate and bulge
 - Body moves with cartoon physics
 - Surrounding biological elements react to movement
-- Character shows intense emotional reaction""")
+- Character shows intense emotional reaction"""
+
+        if additional_direction_en:
+            action_text += f"\n\n⚠️ CRITICAL: All actions must incorporate: {additional_direction_en}"
+
+        kling_sections.append(action_text)
 
     # Style
     style_desc = "Pixar-style 3D animation"
@@ -1148,11 +1178,6 @@ Ultra close-up framing of the character inside {environment}, surrounded by biol
 
     kling_sections.append(f"""Ambiance & Effects:
 {chr(10).join('- ' + effect for effect in effects_desc)}""")
-
-    # 追加の演出指示があれば追加
-    if additional_direction_en:
-        kling_sections.append(f"""Additional Direction:
-{additional_direction_en}""")
 
     kling_prompt = "\n\n".join(kling_sections)
 
