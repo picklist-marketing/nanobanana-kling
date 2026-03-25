@@ -272,20 +272,6 @@
                     <h2 id="result-title">生成結果</h2>
                 </div>
 
-                <!-- 一括自動生成 -->
-                <div class="prompt-section auto-generate-section">
-                    <div class="prompt-header">
-                        <h3>🚀 自動生成（画像→動画）</h3>
-                    </div>
-                    <div class="auto-generate-box">
-                        <p>プロンプトを生成してから、ボタンを押すと自動で画像→動画を生成します</p>
-                        <button id="btn-auto-generate" class="btn btn-primary btn-large" onclick="autoGenerateFull()" disabled>
-                            🚀 一括自動生成（Imagen 4 → Veo 3.1）
-                        </button>
-                        <div id="auto-generate-status" class="status-message"></div>
-                    </div>
-                </div>
-
                 <!-- Nano Banana プロンプト -->
                 <div class="prompt-section">
                     <div class="prompt-header">
@@ -308,6 +294,17 @@
                     <div id="image-result" class="generation-result" style="display: none;">
                         <h4>✅ 生成されたキャラクター</h4>
                         <img id="generated-image" src="" alt="Generated Image" style="max-width: 100%; border-radius: 8px; margin-top: 10px;">
+                        <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button id="btn-regenerate-image" class="btn btn-secondary btn-large" onclick="regenerateImage()" style="flex: 1; min-width: 200px;">
+                                🔄 画像を再生成
+                            </button>
+                            <button id="btn-confirm-image" class="btn btn-success btn-large" onclick="confirmImageAndEnableVideo()" style="flex: 1; min-width: 200px;">
+                                ✅ この画像で動画を作る
+                            </button>
+                        </div>
+                        <div id="image-confirmed-message" style="display: none; margin-top: 16px; padding: 16px; background: rgba(81, 207, 102, 0.2); border: 2px solid rgba(81, 207, 102, 0.5); border-radius: 12px; color: white; font-weight: 600; text-align: center;">
+                            ✅ 画像確定！下の「動画生成」ボタンで動画を作成できます
+                        </div>
                         <div style="margin-top: 16px;">
                             <button id="btn-continue-scene" class="btn btn-primary btn-large" onclick="continueWithNewScene()" style="display: none;">
                                 ➕ このキャラで続きのシーンを作る

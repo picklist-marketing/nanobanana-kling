@@ -585,16 +585,12 @@ async function generateImage() {
             document.getElementById('image-result').style.display = 'block';
             generatedImageFilename = result.image_filename;
 
-            // 動画生成ボタンを有効化
-            document.getElementById('btn-generate-video').disabled = false;
+            // 画像確定メッセージと続きボタンは非表示に
+            document.getElementById('image-confirmed-message').style.display = 'none';
+            document.getElementById('btn-continue-scene').style.display = 'none';
 
-            // 「続きを作る」ボタンを表示（全モード対応）
-            const characterType = document.getElementById('character_type').value;
-            if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'skeleton' || characterType === 'dog' || characterType === 'cat') {
-                document.getElementById('btn-continue-scene').style.display = 'inline-block';
-            } else {
-                document.getElementById('btn-continue-scene').style.display = 'none';
-            }
+            // 動画生成ボタンは無効のまま（画像確定後に有効化）
+            document.getElementById('btn-generate-video').disabled = true;
 
             // 動画リストをリセット
             generatedVideos = [];
@@ -876,4 +872,30 @@ function addVideoToList(videoInfo) {
 
     // 新しく追加された動画にスクロール
     videoItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// 画像を再生成
+function regenerateImage() {
+    showToast('🔄 画像を再生成します...', 'info');
+    generateImage();
+}
+
+// 画像を確定して動画生成を有効化
+function confirmImageAndEnableVideo() {
+    // 動画生成ボタンを有効化
+    document.getElementById('btn-generate-video').disabled = false;
+    
+    // 確定メッセージを表示
+    document.getElementById('image-confirmed-message').style.display = 'block';
+    
+    // 「続きを作る」ボタンを表示（全モード対応）
+    const characterType = document.getElementById('character_type').value;
+    if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'skeleton' || characterType === 'dog' || characterType === 'cat') {
+        document.getElementById('btn-continue-scene').style.display = 'inline-block';
+    }
+    
+    showToast('✅ 画像確定！動画生成ボタンが有効になりました');
+    
+    // 動画生成セクションまでスクロール
+    document.getElementById('btn-generate-video').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
