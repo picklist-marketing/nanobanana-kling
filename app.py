@@ -273,6 +273,166 @@ def generate_lip_sync(dialogue):
         return "\n".join(lip_sync)
 
 
+def generate_kinnikukun_prompts(form_data):
+    """筋肉くんキャラクター用のプロンプトを生成"""
+    character = form_data.get('kinnikukun_character', 'muscle-duo')
+    scene = form_data.get('kinnikukun_scene', 'gym')
+    expression = form_data.get('kinnikukun_expression', 'rage')
+    dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
+
+    character_details = {
+        'muscle-duo': {
+            'name': 'Muscle Duo',
+            'desc': 'Two 3D characters resembling realistic human anatomy muscle models with visible red muscles and no skin. The larger character has a big protruding belly, the smaller one is slim and athletic.',
+        },
+        'muscle-big': {
+            'name': 'Big Muscle Guy',
+            'desc': 'A large chubby 3D character resembling a realistic human anatomy muscle model, visible red muscles with no skin, big protruding belly, exaggerated facial features.',
+        },
+        'muscle-small': {
+            'name': 'Small Muscle Guy',
+            'desc': 'A small slim 3D character resembling a realistic human anatomy muscle model, visible red muscles with no skin, athletic build, energetic intense expression.',
+        },
+        'angry-emoji': {
+            'name': 'Angry Emoji',
+            'desc': 'A round yellow-orange 3D character resembling an angry emoji face, large expressive eyes, thick furrowed eyebrows, wide open mouth, realistic skin-like texture on smooth round head.',
+        },
+        'emoji-and-boy': {
+            'name': 'Emoji and Boy',
+            'desc': 'A small round yellow-orange angry emoji character next to a cute chubby Pixar-style boy with brown hair. The emoji is lecturing the boy.',
+        },
+    }
+
+    scene_details = {
+        'gym': 'modern gym interior with metal equipment, overhead fluorescent lighting, rubber floor',
+        'kitchen': 'warm cozy kitchen, wooden table, morning sunlight through window, homey atmosphere',
+        'bedroom': 'bedroom with messy bed, warm dim lighting, morning atmosphere, curtains partially open',
+        'living-room': 'modern living room, natural daylight, clean interior, soft ambient lighting',
+    }
+
+    expression_details = {
+        'rage': 'extremely angry expression, veins popping, face turning deep red, mouth wide open screaming',
+        'frustrated': 'frustrated annoyed expression, gritting teeth, furrowed brows, twitching eye',
+        'shocked': 'shocked wide-eyed expression, jaw dropped, eyebrows raised high',
+        'lecturing': 'stern lecturing expression, pointing finger, serious narrowed eyes, slight frown',
+        'realization': 'sudden realization expression, eyes lighting up, mouth forming an O shape',
+        'excited': 'huge excited grin, sparkling eyes, both fists raised, bouncing with energy',
+    }
+
+    char_info = character_details.get(character, character_details['muscle-duo'])
+    scene_env = scene_details.get(scene, scene_details['gym'])
+    expr = expression_details.get(expression, expression_details['rage'])
+
+    image_prompt = f"""{char_info['desc']}
+
+EXPRESSION: {expr}
+ENVIRONMENT: {scene_env}
+STYLE: Pixar-style 3D rendering, highly detailed muscle fiber texture, subsurface scattering, dramatic lighting, high contrast, vertical 9:16 format, octane render, 8k, cinematic"""
+
+    # 動画プロンプト
+    video_sections = []
+    video_sections.append(f"""SCENE: {char_info['name']} character animation
+{char_info['desc']}
+The character talks directly to camera with {expr}.
+Exaggerated facial expressions, mouth moving while speaking, hands gesturing emphatically.""")
+
+    if dialogue:
+        dialogue_en = translate_to_english(dialogue)
+        video_sections.append(f"""DIALOGUE: "{dialogue_en}"
+The character delivers this line with intense emotion and dramatic body language.""")
+
+    if additional_direction:
+        direction_en = translate_to_english(additional_direction)
+        video_sections.append(f"""ADDITIONAL DIRECTION: {direction_en}""")
+
+    video_sections.append(f"""ENVIRONMENT: {scene_env}
+CAMERA: Close-up shots of exaggerated facial expressions, slight camera shake for intensity
+STYLE: Pixar-quality 3D animation, dramatic lighting, comedic educational tone, vertical 9:16 format
+Keywords: muscle anatomy character, {expression}, educational comedy, Pixar-style, dramatic lighting, 9:16 vertical""")
+
+    return {
+        'nano_banana': image_prompt.strip(),
+        'kling': "\n\n".join(video_sections).strip()
+    }
+
+
+def generate_shizuka_bottle_prompts(form_data):
+    """しずかボトルキャラクター用のプロンプトを生成"""
+    expression = form_data.get('shizuka_expression', 'friendly')
+    scene = form_data.get('shizuka_scene', 'coral-reef')
+    direction = form_data.get('shizuka_direction', 'talking')
+    dialogue = form_data.get('dialogue', '').strip()
+    additional_direction = form_data.get('additional_direction', '').strip()
+
+    expression_details = {
+        'friendly': 'warm friendly smile, eyes slightly squinted with joy',
+        'surprised': 'eyes wide open, mouth in O shape, both hands on cheeks in surprise',
+        'confident': 'confident smirk, one hand on hip, slight head tilt',
+        'serious': 'stern serious expression, one finger raised, furrowed brows',
+        'excited': 'huge excited grin, sparkling eyes, both fists raised in celebration',
+        'wink': 'one eye winking, playful smile, pointing at camera',
+    }
+
+    scene_details = {
+        'coral-reef': 'beautiful underwater coral reef with colorful corals (pink, purple, orange), tropical fish, floating bubbles, soft blue-green ocean lighting with god rays from above',
+        'mountain-spring': 'crystal clear mountain spring, smooth rocks, lush green moss, sunlight filtering through trees, pristine water streams',
+        'ice-cave': 'inside a beautiful ice cave, transparent blue ice walls, frost particles floating, cold blue atmospheric lighting',
+        'kitchen': 'bright modern kitchen, morning sunlight through window, clean white counter, fresh wholesome atmosphere',
+    }
+
+    direction_details = {
+        'talking': 'talks calmly with warm smile, one hand raised in greeting, gentle swaying motion',
+        'shocking': 'eyes go wide with shock, leans back dramatically, then leans forward pointing at camera urgently',
+        'explaining': 'nods confidently while talking, one hand on hip, other hand counting on fingers',
+        'deal': 'jumps up excitedly, arms spread wide, huge smile, bouncing with enthusiasm',
+        'cta': 'leans close to camera, winks one eye, points at viewer with friendly inviting gesture',
+    }
+
+    expr = expression_details.get(expression, expression_details['friendly'])
+    scene_env = scene_details.get(scene, scene_details['coral-reef'])
+    dir_desc = direction_details.get(direction, direction_details['talking'])
+
+    image_prompt = f"""A cute Pixar-style 3D anthropomorphic water bottle character.
+Clear transparent plastic body showing pure water inside, white cap worn as a hat,
+label featuring a large blue water droplet logo and Japanese text "自然が育てた日本の水".
+Large expressive cartoon eyes on upper body, small animated mouth below the label,
+small white-gloved hands on the sides.
+
+EXPRESSION: {expr}
+ENVIRONMENT: {scene_env}
+STYLE: Pixar/Disney-style 3D rendering, adorable product mascot design, highly detailed,
+soft volumetric lighting, vertical 9:16 format, octane render, 8k, cinematic"""
+
+    # 動画プロンプト
+    video_sections = []
+    video_sections.append(f"""SCENE: Shizuka water bottle character animation
+A cute anthropomorphic clear water bottle with white cap, blue water droplet logo label, and white-gloved hands.
+The character {dir_desc}.
+Eyes blink naturally, mouth moves with talking motion.
+Water inside the transparent body subtly sloshes with each movement.""")
+
+    if dialogue:
+        dialogue_en = translate_to_english(dialogue)
+        video_sections.append(f"""DIALOGUE: "{dialogue_en}"
+The bottle character delivers this line with expressive gestures and natural body language.""")
+
+    if additional_direction:
+        direction_en = translate_to_english(additional_direction)
+        video_sections.append(f"""ADDITIONAL DIRECTION: {direction_en}""")
+
+    video_sections.append(f"""ENVIRONMENT: {scene_env}
+Bubbles rise continuously, small fish swim past, coral/plants sway gently.
+CAMERA: Medium close-up, slight gentle movement
+STYLE: Pixar-quality 3D animation, soft underwater lighting, friendly educational tone, vertical 9:16 format
+Keywords: water bottle mascot, product animation, cute character, underwater, Pixar-style, 9:16 vertical""")
+
+    return {
+        'nano_banana': image_prompt.strip(),
+        'kling': "\n\n".join(video_sections).strip()
+    }
+
+
 def generate_skeleton_prompts(form_data):
     """
     ガイコツキャラクター用のプロンプトを生成
@@ -959,6 +1119,14 @@ def generate_prompts(form_data):
     キャラクタータイプに応じて適切な関数を呼び出す
     """
     character_type = form_data.get('character_type', 'nanobanana-body')
+
+    # 筋肉くんの場合
+    if character_type == 'kinnikukun':
+        return generate_kinnikukun_prompts(form_data)
+
+    # しずかボトルの場合
+    if character_type == 'shizuka-bottle':
+        return generate_shizuka_bottle_prompts(form_data)
 
     # ライフハッくん（モノ）の場合
     if character_type == 'nanobanana-object':

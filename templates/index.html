@@ -44,6 +44,16 @@
                 <span class="mode-name">ニャンコCR</span>
                 <span class="mode-desc">かわいい猫キャラクター</span>
             </button>
+            <button class="mode-tab" data-mode="kinnikukun" onclick="switchMode('kinnikukun')">
+                <span class="mode-icon">💪</span>
+                <span class="mode-name">筋肉くん</span>
+                <span class="mode-desc">筋トレ教育系キャラ</span>
+            </button>
+            <button class="mode-tab" data-mode="shizuka-bottle" onclick="switchMode('shizuka-bottle')">
+                <span class="mode-icon">💧</span>
+                <span class="mode-name">しずかボトル</span>
+                <span class="mode-desc">商品擬人化広告</span>
+            </button>
         </div>
 
         <div class="main-content">
@@ -118,6 +128,80 @@
                                 <option value="curious">好奇心いっぱいに見つめる</option>
                             </select>
                             <small>犬の動作や表情</small>
+                        </div>
+
+                        <!-- 筋肉くんモード専用フィールド -->
+                        <div class="form-group" id="kinnikukun-character-group" style="display: none;">
+                            <label for="kinnikukun_character">キャラクター *</label>
+                            <select id="kinnikukun_character" name="kinnikukun_character">
+                                <option value="muscle-duo">筋肉コンビ（デカ＆チビ）</option>
+                                <option value="muscle-big">筋肉デカおじさん（単体）</option>
+                                <option value="muscle-small">筋肉チビ（単体）</option>
+                                <option value="angry-emoji">怒り絵文字くん</option>
+                                <option value="emoji-and-boy">絵文字くん＆少年</option>
+                            </select>
+                            <small>使用するキャラクター</small>
+                        </div>
+
+                        <div class="form-group" id="kinnikukun-scene-group" style="display: none;">
+                            <label for="kinnikukun_scene">シーン *</label>
+                            <select id="kinnikukun_scene" name="kinnikukun_scene">
+                                <option value="gym">ジム</option>
+                                <option value="kitchen">キッチン</option>
+                                <option value="bedroom">寝室</option>
+                                <option value="living-room">リビング</option>
+                            </select>
+                            <small>背景シーン</small>
+                        </div>
+
+                        <div class="form-group" id="kinnikukun-expression-group" style="display: none;">
+                            <label for="kinnikukun_expression">表情 *</label>
+                            <select id="kinnikukun_expression" name="kinnikukun_expression">
+                                <option value="rage">激怒</option>
+                                <option value="frustrated">苛立ち</option>
+                                <option value="shocked">驚き</option>
+                                <option value="lecturing">説教</option>
+                                <option value="realization">悟り</option>
+                                <option value="excited">興奮</option>
+                            </select>
+                            <small>キャラの表情</small>
+                        </div>
+
+                        <!-- しずかボトルモード専用フィールド -->
+                        <div class="form-group" id="shizuka-expression-group" style="display: none;">
+                            <label for="shizuka_expression">表情 *</label>
+                            <select id="shizuka_expression" name="shizuka_expression">
+                                <option value="friendly">笑顔（デフォルト）</option>
+                                <option value="surprised">驚き</option>
+                                <option value="confident">自信</option>
+                                <option value="serious">説教</option>
+                                <option value="excited">興奮</option>
+                                <option value="wink">ウインク</option>
+                            </select>
+                            <small>ボトルキャラの表情</small>
+                        </div>
+
+                        <div class="form-group" id="shizuka-scene-group" style="display: none;">
+                            <label for="shizuka_scene">背景 *</label>
+                            <select id="shizuka_scene" name="shizuka_scene">
+                                <option value="coral-reef">海底サンゴ礁</option>
+                                <option value="mountain-spring">清流・湧き水</option>
+                                <option value="ice-cave">氷の洞窟</option>
+                                <option value="kitchen">朝のキッチン</option>
+                            </select>
+                            <small>背景シーン</small>
+                        </div>
+
+                        <div class="form-group" id="shizuka-direction-group" style="display: none;">
+                            <label for="shizuka_direction">演出 *</label>
+                            <select id="shizuka_direction" name="shizuka_direction">
+                                <option value="talking">語りかけ</option>
+                                <option value="shocking">驚かせる</option>
+                                <option value="explaining">自信ある説明</option>
+                                <option value="deal">お得アピール</option>
+                                <option value="cta">CTA（呼びかけ）</option>
+                            </select>
+                            <small>演出パターン</small>
                         </div>
 
                         <!-- ニャンコモード専用フィールド -->
@@ -398,7 +482,65 @@
 
         const dialogueHint = document.getElementById('dialogue-hint');
 
-        if (characterType === 'cat') {
+        // 筋肉くん・しずかボトル専用フィールド
+        const kinnikunCharacterGroup = document.getElementById('kinnikukun-character-group');
+        const kinnikunSceneGroup = document.getElementById('kinnikukun-scene-group');
+        const kinnikunExpressionGroup = document.getElementById('kinnikukun-expression-group');
+        const shizukaExpressionGroup = document.getElementById('shizuka-expression-group');
+        const shizukaSceneGroup = document.getElementById('shizuka-scene-group');
+        const shizukaDirectionGroup = document.getElementById('shizuka-direction-group');
+
+        // 全モード専用フィールドを一旦非表示
+        kinnikunCharacterGroup.style.display = 'none';
+        kinnikunSceneGroup.style.display = 'none';
+        kinnikunExpressionGroup.style.display = 'none';
+        shizukaExpressionGroup.style.display = 'none';
+        shizukaSceneGroup.style.display = 'none';
+        shizukaDirectionGroup.style.display = 'none';
+
+        if (characterType === 'kinnikukun') {
+            // 筋肉くんモード
+            basicInfoTitle.textContent = '💪 筋肉くん設定';
+            productCategoryGroup.style.display = 'none';
+            productCategory.removeAttribute('required');
+            characterSubjectGroup.style.display = 'none';
+            characterSubjectInput.removeAttribute('required');
+
+            dogBreedGroup.style.display = 'none';
+            dogSceneGroup.style.display = 'none';
+            dogActionGroup.style.display = 'none';
+            catBreedGroup.style.display = 'none';
+            catSceneGroup.style.display = 'none';
+            catActionGroup.style.display = 'none';
+
+            kinnikunCharacterGroup.style.display = 'block';
+            kinnikunSceneGroup.style.display = 'block';
+            kinnikunExpressionGroup.style.display = 'block';
+
+            document.getElementById('dialogue').placeholder = '例: 毎日腹筋やってんのに！';
+            dialogueHint.textContent = 'キャラのセリフ（任意・日本語OK）';
+        } else if (characterType === 'shizuka-bottle') {
+            // しずかボトルモード
+            basicInfoTitle.textContent = '💧 しずかボトル設定';
+            productCategoryGroup.style.display = 'none';
+            productCategory.removeAttribute('required');
+            characterSubjectGroup.style.display = 'none';
+            characterSubjectInput.removeAttribute('required');
+
+            dogBreedGroup.style.display = 'none';
+            dogSceneGroup.style.display = 'none';
+            dogActionGroup.style.display = 'none';
+            catBreedGroup.style.display = 'none';
+            catSceneGroup.style.display = 'none';
+            catActionGroup.style.display = 'none';
+
+            shizukaExpressionGroup.style.display = 'block';
+            shizukaSceneGroup.style.display = 'block';
+            shizukaDirectionGroup.style.display = 'block';
+
+            document.getElementById('dialogue').placeholder = '例: 内側からの綺麗を習慣にしてみない？';
+            dialogueHint.textContent = 'ボトルキャラのセリフ（任意・日本語OK）';
+        } else if (characterType === 'cat') {
             // ニャンコモード
             basicInfoTitle.textContent = '🐱 猫キャラクター設定';
             productCategoryGroup.style.display = 'none';
