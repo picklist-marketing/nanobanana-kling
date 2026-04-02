@@ -351,10 +351,7 @@ CAMERA: Close-up shots of exaggerated facial expressions, slight camera shake fo
 STYLE: Pixar-quality 3D animation, dramatic lighting, comedic educational tone, vertical 9:16 format
 Keywords: muscle anatomy character, {expression}, educational comedy, Pixar-style, dramatic lighting, 9:16 vertical""")
 
-    return {
-        'nano_banana': image_prompt.strip(),
-        'kling': "\n\n".join(video_sections).strip()
-    }
+    return image_prompt.strip(), "\n\n".join(video_sections).strip()
 
 
 def generate_shizuka_bottle_prompts(form_data):
@@ -427,10 +424,7 @@ CAMERA: Medium close-up, slight gentle movement
 STYLE: Pixar-quality 3D animation, soft underwater lighting, friendly educational tone, vertical 9:16 format
 Keywords: water bottle mascot, product animation, cute character, underwater, Pixar-style, 9:16 vertical""")
 
-    return {
-        'nano_banana': image_prompt.strip(),
-        'kling': "\n\n".join(video_sections).strip()
-    }
+    return image_prompt.strip(), "\n\n".join(video_sections).strip()
 
 
 def generate_skeleton_prompts(form_data):

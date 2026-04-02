@@ -890,7 +890,7 @@ function confirmImageAndEnableVideo() {
     
     // 「続きを作る」ボタンを表示（全モード対応）
     const characterType = document.getElementById('character_type').value;
-    if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'skeleton' || characterType === 'dog' || characterType === 'cat') {
+    if (characterType === 'nanobanana-body' || characterType === 'nanobanana-object' || characterType === 'skeleton' || characterType === 'dog' || characterType === 'cat' || characterType === 'kinnikukun' || characterType === 'shizuka-bottle') {
         document.getElementById('btn-continue-scene').style.display = 'inline-block';
     }
     
