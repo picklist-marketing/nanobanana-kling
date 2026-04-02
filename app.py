@@ -1517,39 +1517,60 @@ def generate_image_with_imagen(prompt):
         print(f"\n🎨 Gemini (Nano Banana) 画像生成開始...")
         print(f"プロンプト: {prompt[:100]}...")
 
-        model = genai.GenerativeModel('gemini-2.5-flash-image')
+        # gemini-2.5-flash-image → フォールバック gemini-2.0-flash
+        models_to_try = ['gemini-2.5-flash-image', 'gemini-2.0-flash']
 
-        response = model.generate_content(
-            prompt,
-            generation_config={
-                'response_modalities': ['IMAGE', 'TEXT'],
-            }
-        )
+        last_error = None
+        for model_name in models_to_try:
+            try:
+                print(f"  試行中: {model_name}")
+                model = genai.GenerativeModel(model_name)
 
-        # 画像データを取得
-        if response.parts:
-            for part in response.parts:
-                if hasattr(part, 'inline_data') and part.inline_data:
-                    image_data = part.inline_data.data
-
-                    # 画像を保存
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                    image_filename = f"generated_image_{timestamp}.png"
-                    image_path = OUTPUTS_DIR / image_filename
-
-                    with open(image_path, 'wb') as f:
-                        f.write(image_data)
-
-                    print(f"✅ 画像生成完了: {image_filename}")
-
-                    return {
-                        'success': True,
-                        'image_path': str(image_path),
-                        'image_filename': image_filename,
-                        'image_url': f'/outputs/{image_filename}'
+                response = model.generate_content(
+                    prompt,
+                    generation_config={
+                        'response_modalities': ['IMAGE', 'TEXT'],
                     }
+                )
 
-            raise Exception("画像がレスポンスに含まれていません")
+                # レスポンス内容をデバッグ出力
+                print(f"  レスポンス parts数: {len(response.parts) if response.parts else 0}")
+                if response.parts:
+                    for i, part in enumerate(response.parts):
+                        has_image = hasattr(part, 'inline_data') and part.inline_data
+                        has_text = hasattr(part, 'text') and part.text
+                        print(f"  Part {i}: image={has_image}, text={has_text}")
+
+                # 画像データを取得
+                if response.parts:
+                    for part in response.parts:
+                        if hasattr(part, 'inline_data') and part.inline_data:
+                            image_data = part.inline_data.data
+
+                            # 画像を保存
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                            image_filename = f"generated_image_{timestamp}.png"
+                            image_path = OUTPUTS_DIR / image_filename
+
+                            with open(image_path, 'wb') as f:
+                                f.write(image_data)
+
+                            print(f"✅ 画像生成完了 ({model_name}): {image_filename}")
+
+                            return {
+                                'success': True,
+                                'image_path': str(image_path),
+                                'image_filename': image_filename,
+                                'image_url': f'/outputs/{image_filename}'
+                            }
+
+                print(f"  ⚠️ {model_name}: 画像なし、次のモデルを試行")
+            except Exception as e:
+                print(f"  ❌ {model_name} エラー: {str(e)}")
+                last_error = e
+                continue
+
+        raise Exception(f"全モデルで画像生成失敗: {str(last_error)}")
 
     except Exception as e:
         print(f"❌ Gemini画像生成エラー: {str(e)}")
