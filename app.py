@@ -1439,7 +1439,7 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         print(f"\n🎨 Gemini 参考画像付き画像生成開始...")
         print(f"プロンプト: {prompt[:100]}...")
 
-        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        model = genai.GenerativeModel('gemini-2.0-flash-exp-image-generation')
 
         # 参考画像をPartとして組み立て
         image_part = {
@@ -1452,14 +1452,10 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         response = model.generate_content(
             [
                 image_part,
-                f"""Based on this product photo, generate a Pixar-style 3D anthropomorphic character version of this bottle.
-
-{prompt}
-
-Generate the image directly. Do not describe it — produce the image."""
+                f"Transform this bottle into a cute Pixar-style 3D anthropomorphic character. Keep the exact bottle design. Add cartoon eyes, mouth, small hands. {prompt}"
             ],
             generation_config={
-                'response_mime_type': 'image/png',
+                'response_modalities': ['IMAGE', 'TEXT'],
             }
         )
 
