@@ -410,7 +410,7 @@ CHARACTER FEATURES (add to the bottle):
 EXPRESSION: {expr}
 ENVIRONMENT: {scene_env}
 STYLE: Pixar/Disney-style 3D rendering, adorable product mascot, vertical 9:16 format, highly detailed, octane render, 8k, cinematic
-TEXT RENDERING: All Japanese text on the label must be crisp, legible, and accurately spelled"""
+TEXT RENDERING: The label MUST display the Japanese hiragana text「しずか」(shi-zu-ka, 3 characters: し ず か) clearly and correctly. This is the product name and must be the most prominent text on the label. Do NOT misspell or alter these characters."""
 
     # 動画プロンプト
     video_sections = []
@@ -1463,7 +1463,11 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         response = model.generate_content(
             [
                 image_part,
-                "Add cute cartoon eyes and a small mouth to this bottle. Do not change anything else about the bottle. Keep the label, text, cap, and shape exactly the same."
+                """Add cute cartoon eyes and a small mouth to this bottle.
+
+CRITICAL TEXT RULE: The label on the bottle MUST display the Japanese text「しずか」exactly as written. These are the 3 Japanese hiragana characters: し ず か. Do NOT change, misspell, or omit this text. The text「しずか」must be clearly visible and correctly written on the label.
+
+Do not change anything else about the bottle — keep the shape, cap, transparency, and label layout exactly the same."""
             ],
             generation_config={
                 'response_modalities': ['IMAGE', 'TEXT'],
