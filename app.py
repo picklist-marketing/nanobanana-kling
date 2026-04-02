@@ -1439,7 +1439,7 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         print(f"\n🎨 Gemini 参考画像付き画像生成開始...")
         print(f"プロンプト: {prompt[:100]}...")
 
-        model = genai.GenerativeModel('gemini-2.0-flash-exp-image-generation')
+        model = genai.GenerativeModel('gemini-2.5-flash-image')
 
         # 参考画像をPartとして組み立て
         image_part = {
