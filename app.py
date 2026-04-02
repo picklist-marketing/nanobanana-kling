@@ -1463,20 +1463,7 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         response = model.generate_content(
             [
                 image_part,
-                f"""Edit this product photo. DO NOT redraw or recreate the bottle.
-Keep the original photo as the base and ONLY add these on top:
-
-1. Two large cute cartoon eyes (white sclera, black pupils, highlights) on the upper area above the label
-2. A small cartoon mouth below the label
-3. Two small white-gloved cartoon hands on the sides
-
-RULES:
-- The bottle MUST remain EXACTLY as in the photo — same shape, label, cap, transparency, colors
-- Do NOT redraw the bottle. Do NOT change the label or logo
-- OVERLAY cartoon features onto the existing photo
-- Result should look like cartoon features drawn directly on the real bottle
-
-Expression: {prompt}"""
+                "Add cute cartoon eyes and a small mouth to this bottle. Do not change anything else about the bottle. Keep the label, text, cap, and shape exactly the same."
             ],
             generation_config={
                 'response_modalities': ['IMAGE', 'TEXT'],
