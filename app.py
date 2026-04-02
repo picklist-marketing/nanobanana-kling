@@ -1452,23 +1452,20 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         response = model.generate_content(
             [
                 image_part,
-                f"""Look at this product photo carefully. Create a Pixar-style 3D character version of THIS EXACT bottle.
+                f"""Edit this product photo. DO NOT redraw or recreate the bottle.
+Keep the original photo as the base and ONLY add these on top:
 
-CRITICAL — preserve these details from the photo:
-- The exact bottle shape (clear plastic 500ml water bottle)
-- The white cap
-- The blue water droplet logo on the label
-- The transparent body showing water inside
-- The exact label text and layout
+1. Two large cute cartoon eyes (white sclera, black pupils, highlights) on the upper area above the label
+2. A small cartoon mouth below the label
+3. Two small white-gloved cartoon hands on the sides
 
-ONLY add these character features:
-- Large cute cartoon eyes on the upper part of the bottle body
-- A small expressive mouth below the label
-- Small white-gloved cartoon hands on the sides
+RULES:
+- The bottle MUST remain EXACTLY as in the photo — same shape, label, cap, transparency, colors
+- Do NOT redraw the bottle. Do NOT change the label or logo
+- OVERLAY cartoon features onto the existing photo
+- Result should look like cartoon features drawn directly on the real bottle
 
-Do NOT change the bottle design, color, cap, or label. The character must be immediately recognizable as this specific product.
-
-{prompt}"""
+Expression: {prompt}"""
             ],
             generation_config={
                 'response_modalities': ['IMAGE', 'TEXT'],
