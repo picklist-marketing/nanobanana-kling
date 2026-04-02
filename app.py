@@ -1509,76 +1509,50 @@ Do not change anything else about the bottle — keep the shape, cap, transparen
 
 
 def generate_image_with_imagen(prompt):
-    """Imagen 4.0で画像を生成（REST API使用）"""
+    """Gemini（Nano Banana）で画像を生成"""
     try:
         # 出力ディレクトリを確保
         OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
 
-        print(f"\n🎨 Imagen 4.0 画像生成開始...")
+        print(f"\n🎨 Gemini (Nano Banana) 画像生成開始...")
         print(f"プロンプト: {prompt[:100]}...")
 
-        # Google AI REST APIエンドポイント（Imagen 4.0 Fast）
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-fast-generate-001:predict?key={GOOGLE_API_KEY}"
+        model = genai.GenerativeModel('gemini-2.5-flash-image')
 
-        headers = {
-            "Content-Type": "application/json"
-        }
-
-        payload = {
-            "instances": [{
-                "prompt": prompt
-            }],
-            "parameters": {
-                "sampleCount": 1,
-                "aspectRatio": "9:16",
-                "safetyFilterLevel": "block_some",
-                "personGeneration": "allow_all"
+        response = model.generate_content(
+            prompt,
+            generation_config={
+                'response_modalities': ['IMAGE', 'TEXT'],
             }
-        }
+        )
 
-        response = requests.post(url, headers=headers, json=payload, timeout=120)
+        # 画像データを取得
+        if response.parts:
+            for part in response.parts:
+                if hasattr(part, 'inline_data') and part.inline_data:
+                    image_data = part.inline_data.data
 
-        if response.status_code != 200:
-            raise Exception(f"API Error {response.status_code}: {response.text}")
+                    # 画像を保存
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    image_filename = f"generated_image_{timestamp}.png"
+                    image_path = OUTPUTS_DIR / image_filename
 
-        result = response.json()
-        print(f"API Response: {result}")
+                    with open(image_path, 'wb') as f:
+                        f.write(image_data)
 
-        # 画像データを取得（base64エンコードされている）
-        if 'predictions' in result and len(result['predictions']) > 0:
-            prediction = result['predictions'][0]
+                    print(f"✅ 画像生成完了: {image_filename}")
 
-            # レスポンス形式を確認
-            if 'bytesBase64Encoded' in prediction:
-                image_b64 = prediction['bytesBase64Encoded']
-            elif 'image' in prediction and 'bytesBase64Encoded' in prediction['image']:
-                image_b64 = prediction['image']['bytesBase64Encoded']
-            else:
-                raise Exception(f"Unknown response format: {prediction}")
+                    return {
+                        'success': True,
+                        'image_path': str(image_path),
+                        'image_filename': image_filename,
+                        'image_url': f'/outputs/{image_filename}'
+                    }
 
-            image_data = base64.b64decode(image_b64)
-
-            # 画像を保存
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            image_filename = f"generated_image_{timestamp}.png"
-            image_path = OUTPUTS_DIR / image_filename
-
-            with open(image_path, 'wb') as f:
-                f.write(image_data)
-
-            print(f"✅ 画像生成完了: {image_filename}")
-
-            return {
-                'success': True,
-                'image_path': str(image_path),
-                'image_filename': image_filename,
-                'image_url': f'/outputs/{image_filename}'
-            }
-        else:
-            raise Exception(f"No predictions in response: {result}")
+            raise Exception("画像がレスポンスに含まれていません")
 
     except Exception as e:
-        print(f"❌ Imagen 4.0エラー: {str(e)}")
+        print(f"❌ Gemini画像生成エラー: {str(e)}")
         import traceback
         traceback.print_exc()
         return {
