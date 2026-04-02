@@ -1452,7 +1452,23 @@ def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
         response = model.generate_content(
             [
                 image_part,
-                f"Transform this bottle into a cute Pixar-style 3D anthropomorphic character. Keep the exact bottle design. Add cartoon eyes, mouth, small hands. {prompt}"
+                f"""Look at this product photo carefully. Create a Pixar-style 3D character version of THIS EXACT bottle.
+
+CRITICAL — preserve these details from the photo:
+- The exact bottle shape (clear plastic 500ml water bottle)
+- The white cap
+- The blue water droplet logo on the label
+- The transparent body showing water inside
+- The exact label text and layout
+
+ONLY add these character features:
+- Large cute cartoon eyes on the upper part of the bottle body
+- A small expressive mouth below the label
+- Small white-gloved cartoon hands on the sides
+
+Do NOT change the bottle design, color, cap, or label. The character must be immediately recognizable as this specific product.
+
+{prompt}"""
             ],
             generation_config={
                 'response_modalities': ['IMAGE', 'TEXT'],
@@ -1746,11 +1762,8 @@ def api_generate_image():
         if not GOOGLE_API_KEY:
             return jsonify({'success': False, 'error': 'Google API Keyが設定されていません'}), 500
 
-        # 参考画像がある場合、プロンプトを強化して参考画像情報を含める
+        # 参考画像がある場合、Geminiで参考画像ベースの生成
         if reference_image:
-            prompt = f"""Using the provided product image as reference, {prompt}
-
-IMPORTANT: The generated character must closely match the bottle design in the reference image — same shape, cap color, label design, and overall appearance. Transform it into an anthropomorphic character while preserving the product's visual identity."""
             result = generate_image_with_imagen_and_reference(prompt, reference_image)
         else:
             result = generate_image_with_imagen(prompt)
