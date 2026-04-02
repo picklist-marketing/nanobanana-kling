@@ -4,6 +4,7 @@ let currentPrompts = null;
 let generatedImage = null; // 生成された画像情報
 let generatedVideos = []; // 生成された動画リスト
 let sceneCount = 0; // シーンカウンター
+let referenceImageBase64 = null; // 参考画像のbase64データ
 
 // 初期化
 document.addEventListener('DOMContentLoaded', () => {
@@ -557,12 +558,18 @@ async function generateImage() {
     showToast('🎨 Imagen 3で画像を生成中...', 'info');
 
     try {
+        const imagePayload = {
+            prompt: currentPrompts.nano_banana
+        };
+        // しずかボトルモードで参考画像がある場合
+        if (referenceImageBase64) {
+            imagePayload.reference_image = referenceImageBase64;
+        }
+
         const response = await fetch('/api/generate-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                prompt: currentPrompts.nano_banana
-            })
+            body: JSON.stringify(imagePayload)
         });
 
         if (!response.ok) {
@@ -693,12 +700,17 @@ async function autoGenerateFull() {
         status.innerHTML = '<p style="color: #2196F3;">🎨 ステップ1/2: Imagen 3で画像生成中...</p>';
         showToast('🎨 画像生成中...', 'info');
 
+        const autoImagePayload = {
+            prompt: currentPrompts.nano_banana
+        };
+        if (referenceImageBase64) {
+            autoImagePayload.reference_image = referenceImageBase64;
+        }
+
         const imageResponse = await fetch('/api/generate-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                prompt: currentPrompts.nano_banana
-            })
+            body: JSON.stringify(autoImagePayload)
         });
 
         if (!imageResponse.ok) {
@@ -878,6 +890,29 @@ function addVideoToList(videoInfo) {
 function regenerateImage() {
     showToast('🔄 画像を再生成します...', 'info');
     generateImage();
+}
+
+// 参考画像プレビュー
+function previewReferenceImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // base64データを保存（data:image/...;base64, の部分を除去）
+            referenceImageBase64 = e.target.result.split(',')[1];
+            // プレビュー表示
+            document.getElementById('shizuka-ref-img').src = e.target.result;
+            document.getElementById('shizuka-ref-preview').style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// 参考画像クリア
+function clearReferenceImage() {
+    referenceImageBase64 = null;
+    document.getElementById('shizuka_reference').value = '';
+    document.getElementById('shizuka-ref-preview').style.display = 'none';
 }
 
 // 画像を確定して動画生成を有効化

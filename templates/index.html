@@ -168,6 +168,16 @@
                         </div>
 
                         <!-- しずかボトルモード専用フィールド -->
+                        <div class="form-group" id="shizuka-reference-group" style="display: none;">
+                            <label for="shizuka_reference">商品素材画像（参考画像）</label>
+                            <div id="shizuka-ref-preview" style="display: none; margin-bottom: 10px;">
+                                <img id="shizuka-ref-img" src="" alt="参考画像" style="max-width: 120px; border-radius: 8px; border: 2px solid rgba(255,255,255,0.2);">
+                                <button type="button" class="btn btn-small" onclick="clearReferenceImage()" style="margin-left: 8px;">✕ 削除</button>
+                            </div>
+                            <input type="file" id="shizuka_reference" accept="image/*" onchange="previewReferenceImage(this)">
+                            <small>商品画像をアップすると、そのデザインをベースに擬人化キャラを生成します</small>
+                        </div>
+
                         <div class="form-group" id="shizuka-expression-group" style="display: none;">
                             <label for="shizuka_expression">表情 *</label>
                             <select id="shizuka_expression" name="shizuka_expression">
@@ -497,6 +507,8 @@
         shizukaExpressionGroup.style.display = 'none';
         shizukaSceneGroup.style.display = 'none';
         shizukaDirectionGroup.style.display = 'none';
+        const shizukaReferenceGroup = document.getElementById('shizuka-reference-group');
+        shizukaReferenceGroup.style.display = 'none';
 
         if (characterType === 'kinnikukun') {
             // 筋肉くんモード
@@ -534,6 +546,7 @@
             catSceneGroup.style.display = 'none';
             catActionGroup.style.display = 'none';
 
+            shizukaReferenceGroup.style.display = 'block';
             shizukaExpressionGroup.style.display = 'block';
             shizukaSceneGroup.style.display = 'block';
             shizukaDirectionGroup.style.display = 'block';

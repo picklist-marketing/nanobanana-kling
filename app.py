@@ -1431,6 +1431,72 @@ def delete_prompt(prompt_id):
     return jsonify({'success': True})
 
 
+def generate_image_with_imagen_and_reference(prompt, reference_image_b64):
+    """Gemini + 参考画像で擬人化キャラ画像を生成"""
+    try:
+        OUTPUTS_DIR.mkdir(parents=True, exist_ok=True)
+
+        print(f"\n🎨 Gemini 参考画像付き画像生成開始...")
+        print(f"プロンプト: {prompt[:100]}...")
+
+        model = genai.GenerativeModel('gemini-2.0-flash-exp')
+
+        # 参考画像をPartとして組み立て
+        image_part = {
+            'inline_data': {
+                'mime_type': 'image/jpeg',
+                'data': reference_image_b64
+            }
+        }
+
+        response = model.generate_content(
+            [
+                image_part,
+                f"""Based on this product photo, generate a Pixar-style 3D anthropomorphic character version of this bottle.
+
+{prompt}
+
+Generate the image directly. Do not describe it — produce the image."""
+            ],
+            generation_config={
+                'response_mime_type': 'image/png',
+            }
+        )
+
+        # 画像データを取得
+        if response.parts:
+            for part in response.parts:
+                if hasattr(part, 'inline_data') and part.inline_data:
+                    image_data = part.inline_data.data
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    image_filename = f"generated_image_{timestamp}.png"
+                    image_path = OUTPUTS_DIR / image_filename
+
+                    with open(image_path, 'wb') as f:
+                        f.write(image_data)
+
+                    print(f"✅ 参考画像付き画像生成完了: {image_filename}")
+
+                    return {
+                        'success': True,
+                        'image_path': str(image_path),
+                        'image_filename': image_filename,
+                        'image_url': f'/outputs/{image_filename}'
+                    }
+
+        # 画像が返ってこなかった場合、通常のImagen生成にフォールバック
+        print("⚠️ Gemini画像生成失敗、Imagenにフォールバック")
+        return generate_image_with_imagen(prompt)
+
+    except Exception as e:
+        print(f"❌ Gemini参考画像生成エラー: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # フォールバック
+        print("⚠️ Imagenにフォールバック")
+        return generate_image_with_imagen(prompt)
+
+
 def generate_image_with_imagen(prompt):
     """Imagen 4.0で画像を生成（REST API使用）"""
     try:
@@ -1676,6 +1742,7 @@ def api_generate_image():
     try:
         data = request.json
         prompt = data.get('prompt')
+        reference_image = data.get('reference_image')  # base64画像データ
 
         if not prompt:
             return jsonify({'success': False, 'error': 'プロンプトが必要です'}), 400
@@ -1683,7 +1750,14 @@ def api_generate_image():
         if not GOOGLE_API_KEY:
             return jsonify({'success': False, 'error': 'Google API Keyが設定されていません'}), 500
 
-        result = generate_image_with_imagen(prompt)
+        # 参考画像がある場合、プロンプトを強化して参考画像情報を含める
+        if reference_image:
+            prompt = f"""Using the provided product image as reference, {prompt}
+
+IMPORTANT: The generated character must closely match the bottle design in the reference image — same shape, cap color, label design, and overall appearance. Transform it into an anthropomorphic character while preserving the product's visual identity."""
+            result = generate_image_with_imagen_and_reference(prompt, reference_image)
+        else:
+            result = generate_image_with_imagen(prompt)
         return jsonify(result)
 
     except Exception as e:
