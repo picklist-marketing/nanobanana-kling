@@ -6,9 +6,10 @@
 
 ## 📚 目次
 
-1. [グロテスクコメディスタイル（参考動画風）](#1-グロテスクコメディスタイル参考動画風) ⭐ NEW!
+1. [グロテスクコメディスタイル（参考動画風）](#1-グロテスクコメディスタイル参考動画風)
 2. [3DCGアニメ風（汎用）](#2-3dcgアニメ風汎用)
 3. [クイックリファレンス](#3-クイックリファレンス)
+4. [筋肉くんスタイル（筋トレ教育系）](#4-筋肉くんスタイル筋トレ教育系) ⭐ NEW!
 
 ---
 
@@ -321,6 +322,7 @@ nanobanana-kling/
 │   ├── grotesque-comedy-style.md    ← グロテスクコメディ詳細
 │   ├── 3dcg-templates.md            ← 3DCGアニメ詳細
 │   ├── motion-prompts.md            ← Kling用モーション詳細
+│   ├── kinnikukun-style.md          ← 筋肉くんスタイル詳細
 │   └── quick-reference.md           ← チートシート
 ├── outputs/
 │   └── production-log.md            ← 制作記録
