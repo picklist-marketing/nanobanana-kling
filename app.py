@@ -391,15 +391,26 @@ def generate_shizuka_bottle_prompts(form_data):
     dir_desc = direction_details.get(direction, direction_details['talking'])
 
     image_prompt = f"""A cute Pixar-style 3D anthropomorphic water bottle character.
-Clear transparent plastic body showing pure water inside, white cap worn as a hat,
-label featuring a large blue water droplet logo and Japanese text "自然が育てた日本の水".
-Large expressive cartoon eyes on upper body, small animated mouth below the label,
-small white-gloved hands on the sides.
+
+BOTTLE DESIGN (must be exact):
+- Clear transparent plastic 500ml water bottle body showing pure water inside
+- White screw cap on top
+- Label on the center of the bottle with:
+  - A large blue water droplet shape in the center of the label
+  - Japanese text "しずか" written prominently on the label
+  - Smaller text "自然が育てた日本の水" below the droplet
+  - Text "500ml" at the bottom of the label
+- The bottle has horizontal ridges/grooves on the lower half
+
+CHARACTER FEATURES (add to the bottle):
+- Two large cute cartoon eyes with white sclera and black pupils, placed above the label
+- A small expressive cartoon mouth below the label
+- Two small white-gloved cartoon hands on the left and right sides of the bottle
 
 EXPRESSION: {expr}
 ENVIRONMENT: {scene_env}
-STYLE: Pixar/Disney-style 3D rendering, adorable product mascot design, highly detailed,
-soft volumetric lighting, vertical 9:16 format, octane render, 8k, cinematic"""
+STYLE: Pixar/Disney-style 3D rendering, adorable product mascot, vertical 9:16 format, highly detailed, octane render, 8k, cinematic
+TEXT RENDERING: All Japanese text on the label must be crisp, legible, and accurately spelled"""
 
     # 動画プロンプト
     video_sections = []
